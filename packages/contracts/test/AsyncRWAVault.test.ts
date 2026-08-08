@@ -445,6 +445,97 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
       const user2Shares = await vault.read.balanceOf([user2.account.address]);
       expect(user2Shares).to.equal(1000000000000000000000n);
     });
+
+    it("Should prevent seller from buying their own listed claim", async function () {
+      const { user1, mockUSDC, vault, claimMarket } = await deployFixture();
+
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+      await vault.write.requestDeposit([1000000000n], {
+        account: user1.account,
+      });
+
+      await claimMarket.write.listClaim([1n, 980000000n], {
+        account: user1.account,
+      });
+
+      // Self purchase attempt must revert with CannotBuySelf
+      await expect(
+        claimMarket.simulate.buyClaim([1n], { account: user1.account })
+      ).to.be.rejectedWith("CannotBuySelf");
+    });
+
+    it("Should prevent non-owner from listing a claim", async function () {
+      const { user1, user2, mockUSDC, vault, claimMarket } =
+        await deployFixture();
+
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+      await vault.write.requestDeposit([1000000000n], {
+        account: user1.account,
+      });
+
+      // Non-owner (User2) attempting to list User1's claim must revert
+      await expect(
+        claimMarket.simulate.listClaim([1n, 980000000n], {
+          account: user2.account,
+        })
+      ).to.be.rejectedWith("NotClaimOwner");
+    });
+
+    it("Should prevent listing an already settled claim", async function () {
+      const {
+        attester,
+        user1,
+        publicClient,
+        mockUSDC,
+        oracleAdapter,
+        vault,
+        claimMarket,
+      } = await deployFixture();
+
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+      await vault.write.requestDeposit([1000000000n], {
+        account: user1.account,
+      });
+
+      const chainId = await publicClient.getChainId();
+      const now = BigInt(Math.floor(Date.now() / 1000));
+      const params = {
+        assetId: "RWA-001",
+        requestId: "REQ-0001",
+        state: "SETTLED",
+        nav: 1002500n,
+        yieldRate: 520n,
+        riskStatus: keccak256(stringToBytes("PASS")),
+        nonce: 80n,
+        timestamp: now,
+      };
+
+      const sig = await getEIP712AttestationSignature(
+        attester,
+        oracleAdapter.address,
+        chainId,
+        params
+      );
+
+      await oracleAdapter.write.submitAttestation([params, sig]);
+      await vault.write.claimShares(["REQ-0001"], { account: user1.account });
+
+      // Listing an already settled claim must revert with ClaimAlreadySettled
+      await expect(
+        claimMarket.simulate.listClaim([1n, 980000000n], {
+          account: user1.account,
+        })
+      ).to.be.rejectedWith("ClaimAlreadySettled");
+    });
   });
 
   describe("4. State Machine Transition Integrity", function () {

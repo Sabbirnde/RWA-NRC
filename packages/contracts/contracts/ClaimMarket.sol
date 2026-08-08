@@ -34,6 +34,7 @@ contract ClaimMarket is Ownable, ReentrancyGuard {
     error ListingNotActive();
     error CannotBuySelf();
     error InvalidPrice();
+    error ClaimAlreadySettled();
 
     constructor(address _paymentAsset, address _claimRegistry) Ownable(msg.sender) {
         paymentAsset = IERC20(_paymentAsset);
@@ -43,8 +44,9 @@ contract ClaimMarket is Ownable, ReentrancyGuard {
     function listClaim(uint256 claimId, uint256 price) external nonReentrant {
         if (price == 0) revert InvalidPrice();
 
-        address claimOwner = claimRegistry.getClaimOwner(claimId);
-        if (claimOwner != msg.sender) revert NotClaimOwner();
+        ClaimRegistry.Claim memory claim = claimRegistry.getClaim(claimId);
+        if (claim.owner != msg.sender) revert NotClaimOwner();
+        if (claim.status == ClaimRegistry.ClaimStatus.Settled) revert ClaimAlreadySettled();
 
         _listings[claimId] = Listing({
             claimId: claimId,
