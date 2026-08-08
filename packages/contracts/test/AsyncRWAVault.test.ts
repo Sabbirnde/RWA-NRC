@@ -212,6 +212,17 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
       ).to.be.rejected;
     });
 
+    it("Should prevent direct external calls to vault.onAttestationSettled from non-oracle callers", async function () {
+      const { user1, vault } = await deployFixture();
+
+      // Direct caller attempting to settle vault must revert with UnauthorizedOracle (0xdb8d1fb7)
+      await expect(
+        vault.simulate.onAttestationSettled(["REQ-0001", 1000000n], {
+          account: user1.account,
+        })
+      ).to.be.rejected;
+    });
+
     it("Should prevent attestation replay attacks via nonce tracking", async function () {
       const {
         attester,
