@@ -33,7 +33,9 @@ contract ClaimRegistry is Ownable {
 
     error UnauthorizedCaller();
     error ClaimNotFound();
+    error InvalidClaim();
     error NotClaimOwner();
+    error ClaimNotTransferable();
 
     modifier onlyAuthorized() {
         if (msg.sender != owner() && msg.sender != vault && msg.sender != claimMarket) {
