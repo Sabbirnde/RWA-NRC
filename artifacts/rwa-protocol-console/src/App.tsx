@@ -172,7 +172,15 @@ function Assets() {
 }
 
 function AssetCard({ asset }: { asset: RwaAsset }) {
-  return <article className="asset-card" data-testid={`card-asset-${asset.assetId}`}><div className="asset-card-top"><div className="asset-icon">{asset.assetType.slice(0, 2).toUpperCase()}</div><StatusPill value={asset.riskStatus} /></div><h3>{asset.name}</h3><div className="asset-id mono">{asset.assetId}</div><div className="asset-values"><div><span>NAV</span><b>{money(asset.nav)}</b></div><div><span>Yield</span><b>{pct(asset.yieldRate)}</b></div></div><div className="asset-statuses"><div><span>Custody</span><StatusPill value={asset.custodyStatus} dot={false} /></div><div><span>Settlement</span><StatusPill value={asset.settlementStatus} dot={false} /></div></div><div className="asset-footer"><span><Database size={12} /> {asset.dataSource}</span><span>Updated {shortDate(asset.updatedAt)}</span></div></article>;
+  const isFallback = asset.dataSource?.toLowerCase().includes("fallback") || asset.dataSource?.toLowerCase().includes("mock");
+  return <article className="asset-card" data-testid={`card-asset-${asset.assetId}`}><div className="asset-card-top"><div className="asset-icon">{asset.assetType.slice(0, 2).toUpperCase()}</div><StatusPill value={asset.riskStatus} /></div><h3>{asset.name}</h3><div className="asset-id mono">{asset.assetId}</div><div className="asset-values"><div><span>NAV</span><b>{money(asset.nav)}</b></div><div><span>Yield</span><b>{pct(asset.yieldRate)}</b></div></div><div className="asset-statuses"><div><span>Custody</span><StatusPill value={asset.custodyStatus} dot={false} /></div><div><span>Settlement</span><StatusPill value={asset.settlementStatus} dot={false} /></div></div>
+  <div className="asset-provenance-info" style={{ fontSize: '0.72rem', marginTop: '0.5rem', borderTop: '1px rgba(255,255,255,0.08) solid', paddingTop: '0.4rem', display: 'flex', flexDirection: 'column', gap: '2px', color: 'var(--muted)' }}>
+    <div><strong style={{ color: 'var(--foreground)' }}>Source:</strong> {isFallback ? 'Mock Provider' : 'Firecrawl'}</div>
+    <div><strong style={{ color: 'var(--foreground)' }}>Data status:</strong> {isFallback ? 'Fallback External Reference' : 'External Reference'}</div>
+    <div><strong style={{ color: 'var(--foreground)' }}>Validation:</strong> {asset.riskStatus === 'PASS' ? 'PASSED' : 'REJECTED'}</div>
+    <div><strong style={{ color: 'var(--foreground)' }}>Blockchain authority:</strong> Attestation Service</div>
+  </div>
+  <div className="asset-footer"><span><Database size={12} /> {asset.dataSource}</span><span>Updated {shortDate(asset.updatedAt)}</span></div></article>;
 }
 
 function Requests() {

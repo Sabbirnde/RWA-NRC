@@ -32,7 +32,7 @@ export class RiskEngine {
     }
 
     // 2. Source Reliability
-    const allowedSources = ["Firecrawl Live Ingestion", "Mock RWA Provider", "Treasury.gov API"];
+    const allowedSources = ["Firecrawl", "Mock RWA Provider", "Mock Provider", "Treasury.gov API"];
     if (!allowedSources.some((s) => observation.source.includes(s))) {
       riskScore += 40;
       confidence -= 0.2;
