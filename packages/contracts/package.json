@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm hardhat compile",
+    "build": "node init && pnpm hardhat compile",
     "test": "pnpm hardhat test",
     "deploy": "pnpm hardhat run scripts/deploy.ts"
   },

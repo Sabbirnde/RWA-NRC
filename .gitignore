@@ -21,7 +21,6 @@ node_modules
 *.sublime-workspace
 
 # IDE - VSCode
-.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -45,8 +44,6 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 
 # Secrets & Environment Variables
-.env
-.env.local
 .env.*.local
 *.env
 
@@ -58,3 +55,4 @@ Thumbs.db
 packages/contracts/artifacts/
 packages/contracts/cache/
 deployment.json
+config.bat

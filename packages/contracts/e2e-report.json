@@ -1,5 +1,5 @@
 {
-  "network": "hardhat",
+  "network": "localhost",
   "chainId": 31337,
   "contracts": {
     "Vault": "0xdc64a140aa3e981100a9beca4e685f962f0cf6c9",
@@ -7,23 +7,23 @@
     "OracleAdapter": "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0"
   },
   "scenario1": {
-    "depositTx": "0xd974cb7c55b44059fad2daad61709c4a7eda10124c531a7b0fc7247324ca2e1a",
+    "depositTx": "0x03a0af08956130bf81331989c50789bae0bd0a195ff5149abbbbbbc314da7598",
     "depositBlock": "15",
-    "attestTx": "0x81385998e1d9d70a83d572da493c0dd126b56848a1b3fbfae13c1a5fae3bf8d7",
+    "attestTx": "0xa1ecb9ea584c8901e30ade437288becf7db721cfe420ddb7f72d6e0adf46ebeb",
     "attestBlock": "16",
-    "claimTx": "0x95da14a8e790c05c9ae9527abf877ad2fdcc5defb3946fb2747a927ba7bb1492",
+    "claimTx": "0x5b3d80ac1d9aed3aaa0ab763a2c15351de13dc621af7db432d40797879b7e5a6",
     "claimBlock": "17"
   },
   "scenario2": {
-    "depositTx": "0x35f8f98f72a03944a9075ad2833a7b96196e8e4321b2183e8b53ef5b8f7345a3",
+    "depositTx": "0xb0bd79fb08057456f3b87bf0157924e4dd40c91a999a08f87703dc9c33873970",
     "depositBlock": "19",
-    "listTx": "0x15374534e946051365ecdfb555073ba0995284d843901ba0ed2bf231bf6c81d0",
+    "listTx": "0xc956cbe435174956b3a6aed99b4fa24c76b4384bef89e507df9c3fcff0fcd94c",
     "listBlock": "20",
-    "buyTx": "0x72984a8761fd7f875c1f66b5e80e93fcf9dd5835aa83c1d3c37f4e8c3ee94b7e",
+    "buyTx": "0x0e8259f2a3c2e779413f6fde30f343fcaea03b79b9124f685e8b892efdd52ee2",
     "buyBlock": "22",
-    "attestTx": "0xaea71d0be2cc9fe0c6512d8df22fb2ebfc031ac2c3e68366eb1e88589b69902c",
+    "attestTx": "0xdcc18e898afc98a1d8df1281958738700865f47f3fb6c6fcae22b6009a264116",
     "attestBlock": "23",
-    "claimTx": "0x779536da908cf409ab3b745c25fbeb4296844c8dd5740e53a9e4afef1f7b9a1a",
+    "claimTx": "0x7945972179e0e298550915c400127073579629a658bbe7da6511b894f1fbfe9d",
     "claimBlock": "24"
   }
 }
