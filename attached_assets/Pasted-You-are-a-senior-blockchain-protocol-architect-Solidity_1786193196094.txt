@@ -1,0 +1,1916 @@
+You are a senior blockchain protocol architect, Solidity engineer, backend engineer, security engineer, and full-stack developer.
+
+Your task is to BUILD THE COMPLETE FUNCTIONAL TESTNET PoC of an asynchronous tokenized Real-World Asset (RWA) vault and T+0 claim liquidity platform.
+
+Do not create a mock-only frontend.
+Do not stop at architecture diagrams.
+Do not implement fake buttons.
+Build the actual end-to-end working system.
+
+==================================================
+1. PROJECT TITLE
+==================================================
+
+Asynchronous RWA Vault + Real-World State Middleware + T+0 Claim Market
+
+Core architecture:
+
+ERC-7540 handles the asynchronous vault.
+
+RWA Middleware handles asynchronous real-world state.
+
+Claim Market handles the liquidity gap.
+
+Firecrawl is used as a PoC external-data ingestion mechanism.
+
+==================================================
+2. CORE PROBLEM
+==================================================
+
+Traditional ERC-4626/static vaults assume atomic and synchronous execution:
+
+Deposit → Immediate shares
+Redeem → Immediate assets
+
+This assumption breaks for tokenized RWAs because real-world assets have:
+
+- asynchronous settlement
+- delayed NAV updates
+- external interest rates
+- credit-risk changes
+- custody/issuer verification
+- multi-day settlement
+- external data dependencies
+
+The system must solve three primary problems:
+
+1. Yield/valuation drag caused by settlement latency and stale state.
+2. Transaction-ordering/arbitrage risk around state updates.
+3. Execution/state failures caused by stale, invalid, manipulated, or unavailable external data.
+
+The project should demonstrate that an asynchronous vault architecture is better suited to RWA settlement than a static synchronous vault.
+
+==================================================
+3. CORE SOLUTION
+==================================================
+
+Build three major protocol layers.
+
+LAYER 1 — RWA MIDDLEWARE
+
+Responsible for:
+
+- external data ingestion
+- Firecrawl integration
+- mock RWA API
+- webhook events
+- normalization
+- validation
+- freshness checks
+- risk evaluation
+- state machine
+- signed attestations
+
+LAYER 2 — ERC-7540 ASYNCHRONOUS VAULT
+
+Responsible for:
+
+- asynchronous deposit requests
+- asynchronous redemption requests
+- request IDs
+- pending state
+- claimable state
+- share settlement
+- asset settlement
+- prevention of premature minting
+- ERC-4626-compatible accounting where appropriate
+
+LAYER 3 — CLAIM MARKET
+
+Responsible for:
+
+- representing pending claims
+- transferring eligible claims
+- buying/selling claims before RWA settlement
+- providing T+0 liquidity
+- allowing the original depositor to exit early
+
+For the PoC, DO NOT build a complex order-book DEX.
+
+Use a simple fixed-price peer-to-peer claim marketplace.
+
+==================================================
+4. CRITICAL ARCHITECTURAL RULE
+==================================================
+
+NEVER allow Firecrawl or arbitrary web data to directly control the vault.
+
+The trust flow must be:
+
+External Source
+      ↓
+Firecrawl / Mock Provider
+      ↓
+RWA Middleware
+      ↓
+Normalization
+      ↓
+Validation
+      ↓
+Freshness Check
+      ↓
+Risk Engine
+      ↓
+Signed Attestation
+      ↓
+Oracle Adapter Contract
+      ↓
+ERC-7540 Vault
+      ↓
+Claimable
+      ↓
+User Claims
+
+Firecrawl is NOT an oracle.
+
+Firecrawl is NOT a trusted financial source.
+
+Firecrawl is only an external-data ingestion mechanism for the PoC.
+
+The smart contract must only accept data through a controlled attestation/oracle adapter.
+
+==================================================
+5. TECHNOLOGY STACK
+==================================================
+
+Use:
+
+Blockchain:
+- EVM-compatible testnet
+- Prefer a low-cost testnet such as Base Sepolia or another reliable EVM testnet.
+
+Smart Contracts:
+- Solidity
+- Foundry
+- OpenZeppelin
+- ERC-4626
+- ERC-7540
+
+Frontend:
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- wagmi
+- viem
+- modern wallet connection
+
+Backend:
+- Node.js
+- TypeScript
+- REST API
+- Webhooks
+
+Database:
+- PostgreSQL/Supabase
+- If unnecessary for a specific PoC component, keep storage simple.
+
+External Data:
+- Firecrawl API
+- Mock RWA API
+
+Testing:
+- Foundry unit tests
+- Foundry fuzz/property tests
+- TypeScript integration tests where useful
+
+Deployment:
+- Testnet
+- Contract verification if supported
+
+==================================================
+6. REPOSITORY STRUCTURE
+==================================================
+
+Create a clean monorepo:
+
+/apps
+  /web
+  /api
+
+/packages
+  /contracts
+  /shared
+  /config
+
+/contracts
+  /src
+  /test
+  /script
+
+/docs
+
+/scripts
+
+Suggested:
+
+apps/web
+apps/api
+packages/contracts
+packages/shared
+docs
+
+Keep the architecture modular.
+
+==================================================
+7. SMART CONTRACT ARCHITECTURE
+==================================================
+
+Implement the following components.
+
+A. AsyncRWAVault
+
+Core ERC-7540 asynchronous vault.
+
+Responsibilities:
+
+- accept deposit requests
+- accept redeem requests
+- track request IDs
+- track pending balances
+- track claimable balances
+- finalize valid requests
+- allow claims
+- prevent premature minting
+- support emergency pause
+
+Use OpenZeppelin's ERC-7540 implementation/base contracts where compatible.
+
+Do NOT invent a completely custom ERC-7540 implementation if an appropriate OpenZeppelin implementation is available.
+
+B. RWAOracleAdapter
+
+Responsibilities:
+
+- verify signed attestations
+- verify authorized signer
+- validate nonce
+- validate timestamp
+- validate asset ID
+- validate state
+- reject stale data
+- reject replayed attestations
+- update approved RWA state
+- notify vault
+
+C. RWAAssetRegistry
+
+Track:
+
+- asset ID
+- asset type
+- issuer
+- NAV
+- yield
+- maturity
+- custody status
+- settlement status
+- last update timestamp
+- risk status
+
+D. ClaimRegistry / ClaimToken
+
+Track asynchronous claims.
+
+Each claim must have:
+
+- claim ID
+- request ID
+- asset ID
+- owner
+- face value
+- expected settlement
+- status
+- creation timestamp
+
+Use a simple transferable representation appropriate for the PoC.
+
+E. ClaimMarket
+
+Implement:
+
+- list claim
+- cancel listing
+- buy claim
+- transfer ownership
+- settlement to final owner
+
+DO NOT build an order book.
+
+Use fixed-price listings.
+
+==================================================
+8. ASYNCHRONOUS STATE MACHINE
+==================================================
+
+Implement explicit state transitions.
+
+Deposit lifecycle:
+
+REQUESTED
+    ↓
+PENDING_VERIFICATION
+    ↓
+VERIFIED
+    ↓
+PENDING_SETTLEMENT
+    ↓
+SETTLED
+    ↓
+CLAIMABLE
+    ↓
+FINALIZED
+
+Failure path:
+
+ANY VALID STATE
+    ↓
+EXCEPTION
+    ↓
+PAUSED / RECOVERY
+    ↓
+RESOLVED
+
+Do not allow arbitrary state transitions.
+
+Define allowed transitions in Solidity.
+
+Example:
+
+REQUESTED → PENDING_VERIFICATION = valid
+
+PENDING_VERIFICATION → SETTLED = invalid
+
+PENDING_SETTLEMENT → SETTLED = valid
+
+SETTLED → CLAIMABLE = valid
+
+CLAIMABLE → FINALIZED = valid
+
+FINALIZED → CLAIMABLE = invalid
+
+==================================================
+9. DEPOSIT FLOW
+==================================================
+
+Implement the complete flow:
+
+User connects wallet.
+
+User enters:
+
+1000 USDC
+
+User clicks:
+
+"Request Deposit"
+
+Transaction creates:
+
+Deposit Request #001
+
+The request must initially be:
+
+PENDING
+
+No final shares should be immediately claimable.
+
+Backend/middleware processes the RWA state.
+
+Once the middleware receives and validates a valid settlement attestation:
+
+RWA state becomes:
+
+SETTLED
+
+Vault request becomes:
+
+CLAIMABLE
+
+User clicks:
+
+"Claim Shares"
+
+Shares are minted/settled according to ERC-7540 semantics.
+
+Show this entire lifecycle in the UI.
+
+==================================================
+10. REDEEM FLOW
+==================================================
+
+Implement:
+
+User owns vault shares.
+
+User clicks:
+
+"Request Redeem"
+
+Request becomes:
+
+PENDING
+
+Middleware waits for settlement.
+
+Valid attestation arrives.
+
+Request becomes:
+
+CLAIMABLE
+
+User claims assets.
+
+Prevent double claims.
+
+==================================================
+11. PREMATURE MINTING PROTECTION
+==================================================
+
+This is one of the most important security requirements.
+
+Invariant:
+
+PENDING REQUEST != FINAL SHARE HOLDER
+
+Before settlement:
+
+claimableShares == 0
+
+After valid settlement:
+
+claimableShares > 0
+
+Write tests proving this.
+
+Also test:
+
+- invalid attestation cannot make request claimable
+- stale attestation cannot make request claimable
+- replayed attestation cannot make request claimable
+- wrong asset attestation cannot make request claimable
+- wrong request cannot be finalized
+
+==================================================
+12. RWA MIDDLEWARE
+==================================================
+
+Build a TypeScript service.
+
+Architecture:
+
+Data Adapter
+     ↓
+Normalizer
+     ↓
+Validator
+     ↓
+Freshness Engine
+     ↓
+Risk Engine
+     ↓
+State Engine
+     ↓
+Attestation Service
+
+Create clear interfaces so data sources can be replaced later.
+
+Example:
+
+interface RWADataProvider {
+  getAssetState(assetId: string): Promise<RWAAssetState>;
+}
+
+Implement:
+
+MockRWAProvider
+
+FirecrawlProvider
+
+==================================================
+13. MOCK RWA PROVIDER
+==================================================
+
+Create a controlled simulated RWA API.
+
+Example:
+
+GET /api/rwa/RWA-001
+
+Return:
+
+{
+  "assetId": "RWA-001",
+  "assetType": "TREASURY",
+  "nav": 1002500,
+  "yieldRate": 5.2,
+  "currency": "USD",
+  "custodyStatus": "VERIFIED",
+  "settlementStatus": "SETTLED",
+  "maturityDate": "2026-12-31",
+  "timestamp": 1786200000
+}
+
+Allow the developer/demo operator to change:
+
+- NAV
+- yield
+- custody status
+- settlement status
+- timestamp
+- risk status
+
+This allows the conference demo to simulate:
+
+VALID
+
+STALE
+
+INVALID
+
+SETTLED
+
+FAILED
+
+==================================================
+14. FIRECRAWL INTEGRATION
+==================================================
+
+Integrate Firecrawl through a dedicated provider.
+
+Do not hard-code Firecrawl logic into the vault.
+
+Create:
+
+FirecrawlProvider
+
+Responsibilities:
+
+- search relevant web pages
+- scrape selected sources
+- extract clean markdown/structured information
+- return normalized RWA reference data
+
+Use environment variable:
+
+FIRECRAWL_API_KEY
+
+Never expose this key to the frontend.
+
+Backend only.
+
+Create:
+
+POST /api/firecrawl/search
+
+POST /api/firecrawl/scrape
+
+POST /api/firecrawl/extract
+
+The exact Firecrawl API usage should follow the current official SDK/API format available at implementation time.
+
+If Firecrawl is unavailable during local development:
+
+Gracefully fall back to MockRWAProvider.
+
+Do not make the entire application fail because Firecrawl is unavailable.
+
+==================================================
+15. IMPORTANT FIRECRAWL TRUST MODEL
+==================================================
+
+Never do:
+
+Firecrawl → Blockchain
+
+Instead:
+
+Firecrawl
+ ↓
+Raw external data
+ ↓
+Normalization
+ ↓
+Validation
+ ↓
+Freshness
+ ↓
+Risk
+ ↓
+Human/demo approval or deterministic rules
+ ↓
+Signed Attestation
+ ↓
+Blockchain
+
+Clearly label Firecrawl-sourced data in the UI as:
+
+"External Reference Data"
+
+not:
+
+"Official Oracle"
+
+==================================================
+16. WEBHOOK SYSTEM
+==================================================
+
+Implement:
+
+POST /webhooks/rwa-settlement
+
+Example:
+
+{
+  "assetId": "RWA-001",
+  "event": "SETTLEMENT_CONFIRMED",
+  "settlementReference": "SET-001",
+  "timestamp": 1786200000
+}
+
+Webhook processing must be:
+
+idempotent.
+
+Do not process the same event twice.
+
+Store:
+
+eventId
+
+assetId
+
+eventType
+
+timestamp
+
+payload
+
+processed
+
+==================================================
+17. VALIDATION ENGINE
+==================================================
+
+Validate:
+
+1. schema
+2. asset ID
+3. timestamp
+4. freshness
+5. state transition
+6. NAV sanity
+7. issuer
+8. custody status
+9. settlement status
+10. nonce
+
+If validation fails:
+
+DO NOT settle the vault.
+
+Keep request pending or move to exception.
+
+==================================================
+18. FRESHNESS MODEL
+==================================================
+
+Define a configurable maximum age.
+
+Example:
+
+MAX_DATA_AGE = 5 minutes
+
+If:
+
+currentTime - data.timestamp > MAX_DATA_AGE
+
+then:
+
+STALE
+
+and reject the update.
+
+Make this configurable using environment variables.
+
+==================================================
+19. RISK ENGINE
+==================================================
+
+Create a simple deterministic PoC risk engine.
+
+Example:
+
+if:
+
+custodyStatus == VERIFIED
+AND
+settlementStatus == SETTLED
+AND
+timestamp is fresh
+AND
+NAV is valid
+
+then:
+
+riskStatus = PASS
+
+Otherwise:
+
+riskStatus = FAIL
+
+Return:
+
+{
+  "status": "PASS",
+  "reasons": []
+}
+
+or:
+
+{
+  "status": "FAIL",
+  "reasons": [
+    "STALE_DATA",
+    "CUSTODY_NOT_VERIFIED"
+  ]
+}
+
+==================================================
+20. ATTESTATION SYSTEM
+==================================================
+
+Create signed attestations.
+
+Payload:
+
+{
+  assetId,
+  requestId,
+  state,
+  nav,
+  yieldRate,
+  riskStatus,
+  nonce,
+  timestamp
+}
+
+Sign using a dedicated middleware private key.
+
+Never expose private key to frontend.
+
+Environment variable:
+
+ATTESTER_PRIVATE_KEY
+
+Use EIP-712 typed structured signatures if practical.
+
+Prefer EIP-712 over signing arbitrary strings.
+
+Smart contract verifies:
+
+- signer
+- domain
+- nonce
+- timestamp
+- asset
+- request
+- state
+- signature
+
+==================================================
+21. ORACLE ADAPTER
+==================================================
+
+The RWAOracleAdapter contract must expose a function conceptually equivalent to:
+
+submitAttestation(...)
+
+It must:
+
+1. recover signer
+2. verify authorized signer
+3. check nonce
+4. check timestamp
+5. check asset
+6. check request
+7. check state transition
+8. update asset state
+9. authorize vault settlement
+
+Emit events:
+
+AttestationAccepted
+
+AttestationRejected
+
+RWAStateUpdated
+
+==================================================
+22. CLAIM MARKET
+==================================================
+
+The purpose is to solve:
+
+"User has a pending claim but does not want to wait for T+2/T+3 settlement."
+
+Implement:
+
+Seller lists claim.
+
+Example:
+
+Face value:
+1000 USDC
+
+Listing price:
+980 USDC
+
+Discount:
+2%
+
+Buyer purchases claim.
+
+Ownership changes.
+
+Seller receives payment.
+
+Buyer becomes claim owner.
+
+When the RWA settles:
+
+Buyer receives final value.
+
+==================================================
+23. CLAIM MARKET SECURITY
+==================================================
+
+Prevent:
+
+- selling non-transferable claims
+- selling finalized claims
+- double sale
+- buying your own claim if undesirable
+- claim ownership mismatch
+- double settlement
+
+Use checks-effects-interactions.
+
+Use ReentrancyGuard where appropriate.
+
+==================================================
+24. FRONTEND
+==================================================
+
+Build a polished professional dashboard.
+
+Main navigation:
+
+Dashboard
+Vault
+Deposit
+Redeem
+RWA Assets
+Requests
+Claim Market
+System Monitor
+
+==================================================
+25. DASHBOARD
+==================================================
+
+Show:
+
+TVL
+
+Total Assets
+
+Pending Deposits
+
+Claimable Deposits
+
+Pending Redemptions
+
+Current NAV
+
+Yield Rate
+
+RWA Risk
+
+Oracle Status
+
+Middleware Status
+
+Firecrawl Status
+
+==================================================
+26. REQUEST MONITOR
+==================================================
+
+Create a timeline.
+
+Example:
+
+Deposit Request #001
+
+✓ Request Created
+
+✓ Data Requested
+
+✓ RWA Data Received
+
+✓ Validation Passed
+
+✓ Risk Passed
+
+✓ Attestation Generated
+
+✓ Blockchain Updated
+
+● Claimable
+
+This is extremely important for the conference presentation.
+
+==================================================
+27. RWA MONITOR
+==================================================
+
+Show:
+
+Asset ID
+
+Asset Type
+
+NAV
+
+Yield
+
+Custody
+
+Settlement
+
+Risk
+
+Last Update
+
+Data Source
+
+Example:
+
+RWA-001
+
+US Treasury Demo Asset
+
+NAV:
+$1,002,500
+
+Yield:
+5.20%
+
+Custody:
+VERIFIED
+
+Settlement:
+SETTLED
+
+Risk:
+LOW
+
+Source:
+Firecrawl / Mock Provider
+
+==================================================
+28. CLAIM MARKET UI
+==================================================
+
+Show:
+
+Claim ID
+
+Face Value
+
+Price
+
+Discount
+
+Settlement Date
+
+Seller
+
+Status
+
+Example:
+
+Claim #001
+
+Face Value:
+$1,000
+
+Price:
+$980
+
+Discount:
+2%
+
+Settlement:
+T+2
+
+Button:
+
+BUY CLAIM
+
+==================================================
+29. DEMO MODE
+==================================================
+
+Create a dedicated Demo Mode.
+
+The conference demo must be executable in approximately 5 minutes.
+
+Scenario:
+
+1. Alice connects wallet.
+2. Alice deposits 1000 USDC.
+3. Request becomes PENDING.
+4. Dashboard shows:
+   "Waiting for RWA settlement."
+5. Middleware fetches RWA data.
+6. Firecrawl/mock provider returns data.
+7. Validation succeeds.
+8. Attestation is generated.
+9. Blockchain state changes.
+10. Request becomes CLAIMABLE.
+11. Alice claims shares.
+
+Then:
+
+12. Alice creates another pending claim.
+13. Alice lists claim for $980.
+14. Bob buys it.
+15. Alice gets T+0 liquidity.
+16. Bob owns claim.
+17. RWA settlement occurs.
+18. Bob claims final amount.
+
+==================================================
+30. FAILURE DEMO
+==================================================
+
+Implement a demo switch:
+
+"Simulate Invalid Data"
+
+When enabled:
+
+- middleware returns stale data
+
+or:
+
+- custody status becomes UNVERIFIED
+
+Then:
+
+Risk = FAIL
+
+Attestation rejected
+
+Vault remains PENDING
+
+Show:
+
+"Settlement blocked: external data failed validation."
+
+This demonstrates the safety architecture.
+
+==================================================
+31. SECURITY TESTING
+==================================================
+
+Write Foundry tests for:
+
+- unauthorized attestation
+- invalid signature
+- replay attack
+- stale attestation
+- wrong asset
+- wrong request
+- wrong nonce
+- invalid state transition
+- premature minting
+- double claim
+- double settlement
+- claim ownership
+- claim transfer
+- claim market purchase
+- pause
+- unpause
+- reentrancy-sensitive flows
+
+==================================================
+32. PROPERTY TESTING
+==================================================
+
+Implement fuzz/property tests.
+
+Properties:
+
+1. Pending requests cannot create final shares.
+
+2. A request cannot be claimed twice.
+
+3. A finalized request cannot become pending again.
+
+4. Invalid state transitions always revert.
+
+5. Used nonce cannot be reused.
+
+6. Expired attestation cannot finalize a request.
+
+7. Unauthorized signer cannot update state.
+
+8. A sold claim belongs to the buyer.
+
+9. A finalized claim cannot be sold.
+
+10. Claim value/accounting remains internally consistent.
+
+==================================================
+33. ACCOUNTING INVARIANTS
+==================================================
+
+Maintain clear accounting between:
+
+- deposited assets
+- pending assets
+- claimable assets
+- finalized assets
+- vault shares
+- outstanding claims
+
+Do not create accounting shortcuts that would allow double counting.
+
+Document the accounting model.
+
+==================================================
+34. EVENT SYSTEM
+==================================================
+
+Emit events for:
+
+DepositRequested
+
+DepositProcessed
+
+DepositClaimable
+
+DepositClaimed
+
+RedeemRequested
+
+RedeemProcessed
+
+RedeemClaimable
+
+RedeemClaimed
+
+RWAStateUpdated
+
+AttestationAccepted
+
+AttestationRejected
+
+ClaimCreated
+
+ClaimListed
+
+ClaimPurchased
+
+ClaimTransferred
+
+ClaimSettled
+
+EmergencyPaused
+
+==================================================
+35. ERROR HANDLING
+==================================================
+
+Use custom Solidity errors.
+
+Examples:
+
+InvalidAttestation()
+
+UnauthorizedSigner()
+
+StaleAttestation()
+
+InvalidNonce()
+
+InvalidStateTransition()
+
+RequestNotClaimable()
+
+AlreadyClaimed()
+
+ClaimNotTransferable()
+
+InvalidClaim()
+
+VaultPaused()
+
+Avoid unnecessary require strings.
+
+==================================================
+36. CONFIGURATION
+==================================================
+
+Create:
+
+.env.example
+
+Include:
+
+RPC_URL=
+PRIVATE_KEY=
+DEPLOYER_PRIVATE_KEY=
+ATTESTER_PRIVATE_KEY=
+FIRECRAWL_API_KEY=
+DATABASE_URL=
+NEXT_PUBLIC_CHAIN_ID=
+NEXT_PUBLIC_RPC_URL=
+NEXT_PUBLIC_VAULT_ADDRESS=
+NEXT_PUBLIC_ORACLE_ADAPTER_ADDRESS=
+NEXT_PUBLIC_CLAIM_MARKET_ADDRESS=
+
+Never commit secrets.
+
+==================================================
+37. DEPLOYMENT
+==================================================
+
+Create Foundry deployment scripts.
+
+Deploy in this order:
+
+1. Mock asset
+2. RWAAssetRegistry
+3. RWAOracleAdapter
+4. AsyncRWAVault
+5. ClaimRegistry
+6. ClaimMarket
+
+Configure:
+
+- vault ↔ oracle
+- oracle ↔ authorized signer
+- vault ↔ claim registry
+- claim market ↔ claim registry
+
+Output deployed addresses.
+
+Generate a deployment JSON file.
+
+==================================================
+38. LOCAL DEVELOPMENT
+==================================================
+
+The project must run locally with:
+
+- Anvil
+- backend
+- frontend
+
+Provide:
+
+npm install
+
+npm run dev
+
+or equivalent.
+
+Provide scripts:
+
+dev
+
+test
+
+build
+
+lint
+
+deploy:testnet
+
+contracts:test
+
+contracts:deploy
+
+==================================================
+39. DOCUMENTATION
+==================================================
+
+Create:
+
+README.md
+
+docs/ARCHITECTURE.md
+
+docs/SECURITY.md
+
+docs/DATA-FLOW.md
+
+docs/DEMO.md
+
+docs/DEPLOYMENT.md
+
+docs/API.md
+
+docs/THREAT-MODEL.md
+
+docs/ASSUMPTIONS.md
+
+==================================================
+40. ARCHITECTURE DOCUMENT
+==================================================
+
+Explain clearly:
+
+Why ERC-4626 alone is insufficient.
+
+Why ERC-7540 is used.
+
+Why middleware is necessary.
+
+Why Firecrawl is only an ingestion layer.
+
+Why attestation is necessary.
+
+Why claim markets solve the liquidity gap.
+
+Why asynchronous state transitions require additional testing.
+
+==================================================
+41. DATA FLOW DIAGRAM
+==================================================
+
+Include a Mermaid diagram:
+
+flowchart LR
+
+    RW[Real World / External Sources]
+    FC[Firecrawl]
+    API[Mock RWA API]
+    MW[RWA Middleware]
+    VAL[Validation + Freshness]
+    RISK[Risk Engine]
+    ATT[Attestation Service]
+    ORACLE[Oracle Adapter]
+    VAULT[ERC-7540 Async Vault]
+    CLAIM[Claim Registry]
+    MARKET[Claim Market]
+    USER[User]
+
+    RW --> FC
+    API --> MW
+    FC --> MW
+    MW --> VAL
+    VAL --> RISK
+    RISK --> ATT
+    ATT --> ORACLE
+    ORACLE --> VAULT
+    VAULT --> CLAIM
+    CLAIM --> MARKET
+    MARKET --> USER
+
+==================================================
+42. ON-CHAIN/OFF-CHAIN GAP DIAGRAM
+==================================================
+
+Create a diagram showing:
+
+OFF-CHAIN:
+
+- issuer
+- bank/custodian simulation
+- interest
+- NAV
+- settlement
+- credit risk
+- external web data
+
+MIDDLEWARE:
+
+- ingestion
+- normalization
+- validation
+- risk
+- state machine
+- attestation
+
+ON-CHAIN:
+
+- request
+- vault state
+- shares
+- claims
+- settlement
+- claim market
+
+Clearly show middleware as the bridge.
+
+==================================================
+43. PRODUCT POSITIONING
+==================================================
+
+Do not describe the product simply as:
+
+"RWA tokenization platform."
+
+Position it as:
+
+"Asynchronous settlement and liquidity infrastructure for tokenized RWAs."
+
+Core statement:
+
+ERC-7540 handles the asynchronous vault.
+
+Our middleware handles asynchronous real-world state.
+
+The claim market handles the liquidity gap.
+
+==================================================
+44. POС LIMITATIONS
+==================================================
+
+Clearly disclose:
+
+- Firecrawl data is not authoritative financial data.
+- Mock provider is not a bank.
+- Attestation signer is centralized in the PoC.
+- No legal ownership enforcement is implemented.
+- No production audit has been performed.
+- No production oracle network is implemented.
+- Claim market is simplified.
+- Testnet only.
+
+Do not make claims that the PoC provides production-grade financial infrastructure.
+
+==================================================
+45. SECURITY DESIGN PRINCIPLE
+==================================================
+
+The most important safety principle:
+
+WHEN DATA IS UNCERTAIN, DELAY SETTLEMENT.
+
+Never:
+
+"uncertain data → settle anyway"
+
+Instead:
+
+"uncertain data → remain pending"
+
+This should be reflected in contracts, middleware, UI, and documentation.
+
+==================================================
+46. PERFORMANCE TARGETS
+==================================================
+
+PoC targets:
+
+API response:
+< 2 sec where practical
+
+Middleware processing:
+< 5 sec excluding Firecrawl/network latency
+
+Frontend state refresh:
+< 5 sec
+
+Firecrawl:
+< 30 sec target
+
+Blockchain confirmation:
+network dependent
+
+Do not optimize prematurely.
+
+Prioritize correctness and demonstrability.
+
+==================================================
+47. DESIGN REQUIREMENTS
+==================================================
+
+UI should look like a serious institutional RWA/DeFi protocol.
+
+Use:
+
+- clean dashboard
+- professional typography
+- clear status badges
+- charts where useful
+- transaction timeline
+- risk indicators
+- request states
+- blockchain transaction links
+
+Avoid:
+
+- excessive animations
+- meme-style DeFi design
+- fake TVL
+- fake production metrics
+- fake institutional logos
+
+Clearly label simulated/demo values.
+
+==================================================
+48. DEVELOPMENT PRIORITY
+==================================================
+
+Follow this order.
+
+P0:
+
+1. ERC-7540 vault
+2. Request/claim lifecycle
+3. Oracle adapter
+4. Middleware
+5. Attestation
+6. Mock RWA API
+7. End-to-end flow
+
+P1:
+
+8. Firecrawl
+9. Claim registry
+10. Claim market
+11. Frontend dashboard
+
+P2:
+
+12. Property testing
+13. Failure simulation
+14. Documentation
+15. UI polish
+
+Do not spend excessive time on UI before the end-to-end protocol works.
+
+==================================================
+49. MVP DEFINITION
+==================================================
+
+The MVP is complete ONLY when this works:
+
+User
+ ↓
+Deposit Request
+ ↓
+ERC-7540 Pending
+ ↓
+Middleware
+ ↓
+Mock/Firecrawl RWA Data
+ ↓
+Validation
+ ↓
+Risk
+ ↓
+Signed Attestation
+ ↓
+Oracle Adapter
+ ↓
+Vault Claimable
+ ↓
+User Claims Shares
+
+AND:
+
+Pending Claim
+ ↓
+Claim Market
+ ↓
+Buyer purchases claim
+ ↓
+Seller gets T+0 liquidity
+ ↓
+Claim ownership transfers
+ ↓
+Settlement
+ ↓
+Buyer claims final value
+
+==================================================
+50. IMPLEMENTATION RULES
+==================================================
+
+Do not ask me to manually design every component.
+
+Make reasonable engineering decisions.
+
+However:
+
+- Do not invent ERC-7540 APIs if OpenZeppelin provides them.
+- Inspect the installed/current OpenZeppelin ERC-7540 implementation and adapt to the actual APIs.
+- Keep the implementation modular.
+- Do not unnecessarily fork standards.
+- Do not duplicate existing OpenZeppelin security primitives.
+- Use established libraries wherever appropriate.
+
+If an exact ERC-7540 implementation is unavailable in the installed package, clearly isolate the compatibility layer and document the deviation.
+
+==================================================
+51. CURRENT-DATE / LIBRARY COMPATIBILITY
+==================================================
+
+Before implementing external integrations, verify the currently available APIs/documentation for:
+
+- OpenZeppelin ERC-7540
+- Firecrawl
+- wagmi
+- viem
+
+Do not assume an old API.
+
+Use the actual versions installed in the repository.
+
+==================================================
+52. FINAL ACCEPTANCE TEST
+==================================================
+
+Before declaring the project complete, execute:
+
+A. Contract compilation
+
+B. Unit tests
+
+C. Property/fuzz tests
+
+D. Middleware tests
+
+E. Firecrawl integration/fallback test
+
+F. API tests
+
+G. End-to-end local test
+
+H. Testnet deployment
+
+I. Testnet transaction test
+
+J. Frontend integration test
+
+K. Failure scenario test
+
+L. Claim market test
+
+==================================================
+53. FINAL REPORT
+==================================================
+
+At the end, provide:
+
+1. What was built.
+
+2. Architecture summary.
+
+3. Contract addresses.
+
+4. Testnet network.
+
+5. Frontend URL.
+
+6. Backend URL.
+
+7. Firecrawl integration status.
+
+8. ERC-7540 integration status.
+
+9. Claim Market status.
+
+10. Test results.
+
+11. Known limitations.
+
+12. Security risks.
+
+13. Exact commands to run locally.
+
+14. Exact commands to deploy.
+
+15. Conference demo steps.
+
+==================================================
+54. CONFERENCE DEMO SCRIPT
+==================================================
+
+Create a final DEMO.md with exactly this flow:
+
+DEMO PART 1 — THE PROBLEM
+
+Show:
+
+Traditional vault:
+Deposit → Immediate settlement
+
+Then:
+
+RWA:
+Deposit → T+2/T+3 settlement
+
+Explain:
+
+"This temporal mismatch creates the architectural problem."
+
+DEMO PART 2 — ASYNCHRONOUS VAULT
+
+Deposit 1000 USDC.
+
+Show:
+
+Request #001
+Status: PENDING
+
+Explain:
+
+"No shares are prematurely issued."
+
+DEMO PART 3 — REAL-WORLD STATE
+
+Open middleware dashboard.
+
+Show:
+
+NAV
+Yield
+Custody
+Settlement
+Risk
+
+Show source:
+
+Mock RWA Provider / Firecrawl
+
+DEMO PART 4 — VALIDATION
+
+Show:
+
+Data received
+↓
+Freshness
+↓
+Validation
+↓
+Risk
+↓
+Attestation
+
+DEMO PART 5 — ON-CHAIN SETTLEMENT
+
+Submit attestation.
+
+Show:
+
+PENDING
+↓
+CLAIMABLE
+
+Claim shares.
+
+DEMO PART 6 — LIQUIDITY GAP
+
+Create another pending claim.
+
+List:
+
+$1000 face value
+$980 sale price
+
+Buy using second wallet.
+
+Show:
+
+Seller → T+0 liquidity
+
+Buyer → Claim ownership
+
+DEMO PART 7 — FAILURE
+
+Enable:
+
+STALE DATA
+
+Show:
+
+Risk FAIL
+
+Settlement BLOCKED
+
+Explain:
+
+"The system fails safely by delaying settlement instead of settling against uncertain state."
+
+==================================================
+55. MOST IMPORTANT ENGINEERING PRINCIPLE
+==================================================
+
+Build the smallest architecture that genuinely demonstrates the research hypothesis.
+
+Do NOT attempt to build:
+
+- a complete bank
+- a complete oracle network
+- a production exchange
+- a legal RWA infrastructure
+- a production financial product
+
+The PoC should prove the architecture.
+
+The architecture is:
+
+                    REAL WORLD
+                        │
+                        ▼
+              ┌──────────────────┐
+              │ RWA MIDDLEWARE   │
+              │                  │
+              │ Firecrawl        │
+              │ APIs             │
+              │ Webhooks         │
+              │ Validation       │
+              │ Risk             │
+              │ Attestation      │
+              └────────┬─────────┘
+                       │
+                       ▼
+              ┌──────────────────┐
+              │ ORACLE ADAPTER   │
+              └────────┬─────────┘
+                       │
+                       ▼
+              ┌──────────────────┐
+              │ ERC-7540 VAULT   │
+              │                  │
+              │ Request          │
+              │ Pending          │
+              │ Claimable        │
+              │ Finalized        │
+              └────────┬─────────┘
+                       │
+                       ▼
+              ┌──────────────────┐
+              │ CLAIM MARKET     │
+              │                  │
+              │ T+0 Liquidity    │
+              └──────────────────┘
+
+==================================================
+56. EXECUTION MODE
+==================================================
+
+Start by inspecting the existing repository.
+
+Determine:
+
+- current framework
+- existing files
+- existing dependencies
+- existing contracts
+- existing UI
+- existing database
+- existing environment variables
+
+Do NOT destroy working components unnecessarily.
+
+Then:
+
+1. Create an implementation plan.
+2. Implement P0.
+3. Compile.
+4. Test.
+5. Fix.
+6. Implement P1.
+7. Test.
+8. Implement P2.
+9. Deploy to testnet.
+10. Run the complete end-to-end scenario.
+11. Fix all blocking issues.
+12. Update documentation.
+13. Provide final acceptance report.
+
+If you encounter an ambiguity, choose the simplest secure implementation consistent with ERC-7540 and the architecture above.
+
+Do not stop after generating code.
+
+The goal is a RUNNING, TESTED, END-TO-END TESTNET PoC.
