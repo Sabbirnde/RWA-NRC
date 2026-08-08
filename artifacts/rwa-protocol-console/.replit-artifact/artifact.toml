@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "RWA Protocol Console"
+description = "A conference-ready control surface for asynchronous tokenized RWA settlement: inspect middleware validation, move ERC-7540-style requests from pending to claimable, and trade fixed-price claims for T+0 liquidity."
+version = "1.0.0"
+id = "artifacts/rwa-protocol-console"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19808
+
+[services.development]
+run = "pnpm --filter @workspace/rwa-protocol-console run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/rwa-protocol-console", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/rwa-protocol-console/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19808"
+BASE_PATH = "/"

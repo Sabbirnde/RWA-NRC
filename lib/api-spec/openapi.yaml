@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: protocol
+    description: Asynchronous RWA protocol operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,197 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /protocol/summary:
+    get:
+      operationId: getProtocolSummary
+      tags: [protocol]
+      summary: Get protocol dashboard summary
+      responses:
+        "200":
+          description: Current protocol summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolSummary"
+  /protocol/assets:
+    get:
+      operationId: listRwaAssets
+      tags: [protocol]
+      summary: List monitored RWA assets
+      responses:
+        "200":
+          description: Monitored assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RwaAsset"
+  /protocol/requests:
+    get:
+      operationId: listProtocolRequests
+      tags: [protocol]
+      summary: List asynchronous vault requests
+      responses:
+        "200":
+          description: Vault requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProtocolRequest"
+    post:
+      operationId: createProtocolRequest
+      tags: [protocol]
+      summary: Create a pending deposit or redemption request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProtocolRequestInput"
+      responses:
+        "201":
+          description: Created pending request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolRequest"
+  /protocol/requests/{requestId}/process:
+    post:
+      operationId: processProtocolRequest
+      tags: [protocol]
+      summary: Run middleware validation and attestation for a request
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcessRequestInput"
+      responses:
+        "200":
+          description: Processed request state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolRequest"
+  /protocol/requests/{requestId}/claim:
+    post:
+      operationId: claimProtocolRequest
+      tags: [protocol]
+      summary: Claim settled shares or assets
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Claimed request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolRequest"
+  /protocol/claims:
+    get:
+      operationId: listProtocolClaims
+      tags: [protocol]
+      summary: List claim market inventory
+      responses:
+        "200":
+          description: Claims
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProtocolClaim"
+  /protocol/claims/{claimId}/list:
+    post:
+      operationId: listProtocolClaim
+      tags: [protocol]
+      summary: List a claim at a fixed price
+      parameters:
+        - name: claimId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimListingInput"
+      responses:
+        "200":
+          description: Listed claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolClaim"
+  /protocol/claims/{claimId}/buy:
+    post:
+      operationId: buyProtocolClaim
+      tags: [protocol]
+      summary: Buy a fixed-price claim
+      parameters:
+        - name: claimId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimPurchaseInput"
+      responses:
+        "200":
+          description: Purchased claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolClaim"
+  /protocol/demo/failure:
+    post:
+      operationId: setProtocolFailureMode
+      tags: [protocol]
+      summary: Toggle invalid external data simulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FailureModeInput"
+      responses:
+        "200":
+          description: Updated demo mode
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolSummary"
+  /protocol/demo/reset:
+    post:
+      operationId: resetProtocolDemo
+      tags: [protocol]
+      summary: Reset the conference demo state
+      responses:
+        "200":
+          description: Reset summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolSummary"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +226,100 @@ components:
           type: string
       required:
         - status
+    ProtocolSummary:
+      type: object
+      required: [tvl, totalAssets, pendingDeposits, claimableDeposits, pendingRedemptions, nav, yieldRate, risk, oracleStatus, middlewareStatus, firecrawlStatus, failureMode, lastEvent]
+      properties:
+        tvl: { type: number }
+        totalAssets: { type: number }
+        pendingDeposits: { type: number }
+        claimableDeposits: { type: number }
+        pendingRedemptions: { type: number }
+        nav: { type: number }
+        yieldRate: { type: number }
+        risk: { type: string }
+        oracleStatus: { type: string }
+        middlewareStatus: { type: string }
+        firecrawlStatus: { type: string }
+        failureMode: { type: boolean }
+        lastEvent: { type: string }
+    RwaAsset:
+      type: object
+      required: [assetId, name, assetType, nav, yieldRate, custodyStatus, settlementStatus, riskStatus, updatedAt, dataSource]
+      properties:
+        assetId: { type: string }
+        name: { type: string }
+        assetType: { type: string }
+        nav: { type: number }
+        yieldRate: { type: number }
+        custodyStatus: { type: string }
+        settlementStatus: { type: string }
+        riskStatus: { type: string }
+        updatedAt: { type: string }
+        dataSource: { type: string }
+    ProtocolRequest:
+      type: object
+      required: [id, kind, owner, amount, assetId, status, createdAt, steps, message, claimableAmount]
+      properties:
+        id: { type: string }
+        kind: { type: string }
+        owner: { type: string }
+        amount: { type: number }
+        assetId: { type: string }
+        status: { type: string }
+        createdAt: { type: string }
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/RequestStep"
+        message: { type: string }
+        claimableAmount: { type: number }
+        claimed: { type: boolean }
+    RequestStep:
+      type: object
+      required: [label, state]
+      properties:
+        label: { type: string }
+        state: { type: string }
+        detail: { type: string }
+    ProtocolRequestInput:
+      type: object
+      required: [kind, amount, owner]
+      properties:
+        kind: { type: string, enum: [deposit, redeem] }
+        amount: { type: number, minimum: 1 }
+        owner: { type: string, minLength: 1 }
+    ProcessRequestInput:
+      type: object
+      required: [mode]
+      properties:
+        mode: { type: string, enum: [valid, invalid] }
+    ProtocolClaim:
+      type: object
+      required: [id, requestId, owner, faceValue, price, discount, settlement, status, assetId]
+      properties:
+        id: { type: string }
+        requestId: { type: string }
+        owner: { type: string }
+        faceValue: { type: number }
+        price: { type: number }
+        discount: { type: number }
+        settlement: { type: string }
+        status: { type: string }
+        assetId: { type: string }
+    ClaimListingInput:
+      type: object
+      required: [price]
+      properties:
+        price: { type: number, minimum: 1 }
+    ClaimPurchaseInput:
+      type: object
+      required: [buyer]
+      properties:
+        buyer: { type: string, minLength: 1 }
+    FailureModeInput:
+      type: object
+      required: [enabled]
+      properties:
+        enabled: { type: boolean }
 

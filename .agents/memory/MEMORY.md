@@ -1,0 +1,1 @@
+- [Protocol console compatibility](protocol-console-compatibility.md) — avoid generated integer validators until the workspace Zod/Orval versions support them together.
