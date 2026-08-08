@@ -53,6 +53,12 @@ contract RWAOracleAdapter is EIP712, Ownable {
         string indexed assetId,
         string reason
     );
+    event RWAStateUpdated(
+        string indexed assetId,
+        uint256 nav,
+        uint256 yieldRate,
+        bytes32 riskStatus
+    );
     event SignerUpdated(address indexed newSigner);
     event MaxDataAgeUpdated(uint256 newMaxAge);
 
@@ -139,6 +145,7 @@ contract RWAOracleAdapter is EIP712, Ownable {
         );
 
         emit AttestationAccepted(params.requestId, params.assetId, params.state, params.nav, params.yieldRate, params.timestamp);
+        emit RWAStateUpdated(params.assetId, params.nav, params.yieldRate, params.riskStatus);
 
         if (vault != address(0)) {
             if (keccak256(bytes(params.state)) == keccak256("SETTLED") || keccak256(bytes(params.state)) == keccak256("CLAIMABLE")) {
