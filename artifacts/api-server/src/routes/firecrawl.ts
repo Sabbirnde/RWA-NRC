@@ -28,14 +28,10 @@ router.post("/firecrawl/scrape", async (req, res) => {
   });
 });
 
-router.post("/firecrawl/extract", async (req, res) => {
-  const { assetId = "RWA-001" } = req.body;
-  const state = await firecrawl.getAssetState(assetId);
-  res.json({
-    success: true,
-    assetId,
-    extracted: state,
-  });
+router.post("/firecrawl/test-connectivity", async (req, res) => {
+  const { url = "https://treasury.gov/rates/daily-treasury-yield" } = req.body;
+  const result = await firecrawl.scrapeUrl(url);
+  res.status(result.request === "SUCCESS" ? 200 : 400).json(result);
 });
 
 export default router;

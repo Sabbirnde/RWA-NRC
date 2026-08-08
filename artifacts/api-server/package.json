@@ -7,7 +7,7 @@
     "dev": "pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
-    "test": "pnpm run build && node --test ./dist/services/rwaDataLayer.test.mjs ./dist/services/middleware.test.mjs ./dist/services/middlewareSubcomponents.test.mjs ./dist/services/e2eValidation.test.mjs ./dist/services/gate2Step2Normalization.test.mjs ./dist/services/gate2Step3SchemaValidation.test.mjs ./dist/services/gate2Step4Freshness.test.mjs ./dist/services/gate2Step5RiskEngine.test.mjs ./dist/services/gate2Step6StateMachine.test.mjs ./dist/services/gate2Step7WebhookIdempotency.test.mjs ./dist/services/gate2Step8AssetRegistryNAV.test.mjs ./dist/services/gate2Step9Firecrawl.test.mjs",
+    "test": "pnpm run build && node --test ./dist/services/rwaDataLayer.test.mjs ./dist/services/middleware.test.mjs ./dist/services/middlewareSubcomponents.test.mjs ./dist/services/e2eValidation.test.mjs ./dist/services/gate2Step2Normalization.test.mjs ./dist/services/gate2Step3SchemaValidation.test.mjs ./dist/services/gate2Step4Freshness.test.mjs ./dist/services/gate2Step5RiskEngine.test.mjs ./dist/services/gate2Step6StateMachine.test.mjs ./dist/services/gate2Step7WebhookIdempotency.test.mjs ./dist/services/gate2Step8AssetRegistryNAV.test.mjs ./dist/services/gate2Step9Firecrawl.test.mjs ./dist/services/gate3Step1FirecrawlConnectivity.test.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
