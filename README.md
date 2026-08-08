@@ -122,6 +122,7 @@ pnpm run dev
 
 ## 📄 Complete Documentation Map
 
+- [🔄 End-to-End Protocol Validation & Failure Recovery Specification](docs/E2E_VALIDATION.md)
 - [🛡 Protocol Security Audit & Threat Model Report](SECURITY_AUDIT.md)
 - [📈 Fixed-Price P2P Claim Marketplace Specification](docs/CLAIM_MARKET_SPEC.md)
 - [💧 Protocol Liquidity & Economic Safety Model](docs/LIQUIDITY_MODEL.md)
