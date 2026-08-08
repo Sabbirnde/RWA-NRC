@@ -47,6 +47,7 @@ contract ClaimMarket is Ownable, ReentrancyGuard {
         ClaimRegistry.Claim memory claim = claimRegistry.getClaim(claimId);
         if (claim.owner != msg.sender) revert NotClaimOwner();
         if (claim.status == ClaimRegistry.ClaimStatus.Settled) revert ClaimAlreadySettled();
+        if (price > claim.faceValue) revert InvalidPrice();
 
         _listings[claimId] = Listing({
             claimId: claimId,

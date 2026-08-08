@@ -122,6 +122,8 @@ pnpm run dev
 
 ## 📄 Complete Documentation Map
 
+- [📈 Fixed-Price P2P Claim Marketplace Specification](docs/CLAIM_MARKET_SPEC.md)
+- [💧 Protocol Liquidity & Economic Safety Model](docs/LIQUIDITY_MODEL.md)
 - [📜 Claim Registry & Economic Claim Specification](docs/CLAIM_REGISTRY_SPEC.md)
 - [🏦 ERC-7540 Asynchronous Vault Specification](docs/VAULT_SPEC.md)
 - [🔐 Signed Attestation & Provenance Specification](docs/ATTESTATION_SPEC.md)
