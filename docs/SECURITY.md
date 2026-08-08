@@ -16,8 +16,13 @@ This document details the core security invariants, access controls, and automat
 3. **Data Freshness Requirement**:
    Off-chain `ValidationEngine` enforces `MAX_DATA_AGE_SECONDS` (default: 300s). On-chain `RWAOracleAdapter` asserts `block.timestamp <= timestamp + maxDataAge` (15m threshold). Stale updates revert `StaleAttestation()`.
 
-4. **Fail-Closed Safety Principle**:
-   When external reference data fails schema checks, custody verification, or freshness thresholds, settlement is **delayed**, never forced. Delay is considered a successful security outcome.
+4. **Paramount Safety Principle (Fail-Closed Delay)**:
+   > 🚨 **WHEN DATA IS UNCERTAIN, DELAY SETTLEMENT.**
+   > 
+   > ❌ **NEVER**: `Uncertain data → Settle anyway`  
+   > ✅ **ALWAYS**: `Uncertain data → Remain pending`
+   
+   When external reference data fails schema checks, custody verification, or freshness thresholds, settlement is **delayed**, keeping the vault request strictly in `PENDING` or `EXCEPTION` state with `claimableShares == 0`. Delay is considered a successful security outcome.
 
 5. **Reentrancy & Access Control**:
    All state-changing functions use OpenZeppelin's `ReentrancyGuard` (`nonReentrant`), `SafeERC20`, and explicit access control modifiers (`onlyOracle`, `onlyOwner`).
