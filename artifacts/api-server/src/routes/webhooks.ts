@@ -13,27 +13,23 @@ export interface WebhookRecord {
   processedAt: string;
 }
 
-const processedEvents = new Map<string, WebhookRecord>();
+export const processedEvents = new Map<string, WebhookRecord>();
 
-router.post("/webhooks/rwa-settlement", (req, res) => {
-  const { eventId: inputEventId, assetId, event, eventType, settlementReference, timestamp } = req.body;
+export function processWebhookEvent(body: any): { status: "PROCESSED" | "IGNORED_DUPLICATE"; eventId: string; record: WebhookRecord } {
+  const { eventId: inputEventId, assetId, event, eventType, settlementReference, timestamp } = body;
 
-  // Auto-derive eventId if not explicitly provided
   const eventId =
     inputEventId ||
     settlementReference ||
     `${assetId || "RWA-001"}-${event || eventType || "SETTLEMENT_CONFIRMED"}-${timestamp || Date.now()}`;
 
-  // Idempotency check: Do not process the same event twice
   if (processedEvents.has(eventId)) {
     const existing = processedEvents.get(eventId)!;
-    res.status(200).json({
+    return {
       status: "IGNORED_DUPLICATE",
       eventId,
-      message: "Event already processed",
       record: existing,
-    });
-    return;
+    };
   }
 
   const record: WebhookRecord = {
@@ -42,17 +38,36 @@ router.post("/webhooks/rwa-settlement", (req, res) => {
     eventType: event || eventType || "SETTLEMENT_CONFIRMED",
     settlementReference: settlementReference || "SET-001",
     timestamp: timestamp || Math.floor(Date.now() / 1000),
-    payload: req.body,
+    payload: body,
     processed: true,
     processedAt: new Date().toISOString(),
   };
 
   processedEvents.set(eventId, record);
 
-  res.status(200).json({
+  return {
     status: "PROCESSED",
     eventId,
     record,
+  };
+}
+
+router.post("/webhooks/rwa-settlement", (req, res) => {
+  const result = processWebhookEvent(req.body);
+  if (result.status === "IGNORED_DUPLICATE") {
+    res.status(200).json({
+      status: "IGNORED_DUPLICATE",
+      eventId: result.eventId,
+      message: "Event already processed",
+      record: result.record,
+    });
+    return;
+  }
+
+  res.status(200).json({
+    status: "PROCESSED",
+    eventId: result.eventId,
+    record: result.record,
   });
 });
 
