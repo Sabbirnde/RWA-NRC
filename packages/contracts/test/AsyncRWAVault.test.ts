@@ -378,4 +378,70 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
       expect(user2Shares).to.equal(1000000000000000000000n);
     });
   });
+
+  describe("4. State Machine Transition Integrity", function () {
+    it("Should revert Pending -> Finalized transition with RequestNotClaimable error", async function () {
+      const { user1, mockUSDC, vault } = await deployFixture();
+
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+      await vault.write.requestDeposit([1000000000n], {
+        account: user1.account,
+      });
+
+      // Direct Pending -> Finalized transition attempt via claimShares must fail
+      await expect(
+        vault.simulate.claimShares(["REQ-0001"], { account: user1.account })
+      ).to.be.rejectedWith("RequestNotClaimable");
+    });
+
+    it("Should revert double claim attempt on Finalized request", async function () {
+      const {
+        attester,
+        user1,
+        publicClient,
+        mockUSDC,
+        oracleAdapter,
+        vault,
+      } = await deployFixture();
+
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+      await vault.write.requestDeposit([1000000000n], {
+        account: user1.account,
+      });
+
+      const chainId = await publicClient.getChainId();
+      const now = BigInt(Math.floor(Date.now() / 1000));
+      const params = {
+        assetId: "RWA-001",
+        requestId: "REQ-0001",
+        state: "SETTLED",
+        nav: 1002500n,
+        yieldRate: 520n,
+        riskStatus: keccak256(stringToBytes("PASS")),
+        nonce: 40n,
+        timestamp: now,
+      };
+
+      const sig = await getEIP712AttestationSignature(
+        attester,
+        oracleAdapter.address,
+        chainId,
+        params
+      );
+
+      await oracleAdapter.write.submitAttestation([params, sig]);
+      await vault.write.claimShares(["REQ-0001"], { account: user1.account });
+
+      // Second claim attempt must revert
+      await expect(
+        vault.simulate.claimShares(["REQ-0001"], { account: user1.account })
+      ).to.be.rejectedWith("RequestNotClaimable");
+    });
+  });
 });
