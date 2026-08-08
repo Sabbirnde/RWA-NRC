@@ -538,6 +538,43 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
     });
   });
 
+  describe("5. Emergency Pause & Recovery Mechanics", function () {
+    it("Should block deposit requests when vault is paused", async function () {
+      const { user1, mockUSDC, vault } = await deployFixture();
+
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+
+      await vault.write.pause();
+
+      await expect(
+        vault.simulate.requestDeposit([1000000000n], {
+          account: user1.account,
+        })
+      ).to.be.rejected;
+    });
+
+    it("Should allow deposit requests after vault is unpaused", async function () {
+      const { user1, mockUSDC, vault } = await deployFixture();
+
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+
+      await vault.write.pause();
+      await vault.write.unpause();
+
+      await expect(
+        vault.write.requestDeposit([1000000000n], {
+          account: user1.account,
+        })
+      ).to.be.fulfilled;
+    });
+  });
+
   describe("4. State Machine Transition Integrity", function () {
     it("Should revert Pending -> Finalized transition with RequestNotClaimable error", async function () {
       const { user1, mockUSDC, vault } = await deployFixture();

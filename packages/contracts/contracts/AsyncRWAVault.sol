@@ -131,17 +131,16 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
      * @notice Submit an asynchronous deposit request. Assets are transferred to vault immediately,
      * but NO SHARES are minted until settlement attestation passes.
      */
-    function requestDeposit(uint256 assetsAmount) external whenNotPaused nonReentrant returns (string memory requestId) {
-        if (assetsAmount == 0) revert InvalidAmount();
-
-        asset.safeTransferFrom(msg.sender, address(this), assetsAmount);
+    function requestDeposit(uint256 amount) external whenNotPaused nonReentrant returns (string memory requestId) {
+        if (amount == 0) revert InvalidAmount();
+        asset.safeTransferFrom(msg.sender, address(this), amount);
 
         requestSequence++;
         requestId = string(abi.encodePacked("REQ-", _toString(requestSequence)));
 
         uint256 claimId = 0;
         if (address(claimRegistry) != address(0)) {
-            claimId = claimRegistry.createClaim(requestId, "RWA-001", msg.sender, assetsAmount);
+            claimId = claimRegistry.createClaim(requestId, "RWA-001", msg.sender, amount);
             claimIdToRequestId[claimId] = requestId;
         }
 
@@ -149,7 +148,7 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
             requestId: requestId,
             kind: RequestKind.Deposit,
             owner: msg.sender,
-            amount: assetsAmount,
+            amount: amount,
             claimableShares: 0,
             claimableAssets: 0,
             state: RequestState.Pending,
@@ -157,7 +156,7 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
             claimId: claimId
         });
 
-        emit DepositRequested(requestId, msg.sender, assetsAmount);
+        emit DepositRequested(requestId, msg.sender, amount);
     }
 
     /**
