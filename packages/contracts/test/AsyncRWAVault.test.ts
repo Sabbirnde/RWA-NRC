@@ -301,6 +301,63 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
         oracleAdapter.write.submitAttestation([params, sig])
       ).to.be.rejected;
     });
+
+    it("Should not make request claimable when attestation state is REJECTED", async function () {
+      const {
+        attester,
+        user1,
+        publicClient,
+        mockUSDC,
+        oracleAdapter,
+        vault,
+      } = await deployFixture();
+
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+      await vault.write.requestDeposit([1000000000n], {
+        account: user1.account,
+      });
+
+      const chainId = await publicClient.getChainId();
+      const now = BigInt(Math.floor(Date.now() / 1000));
+      const params = {
+        assetId: "RWA-001",
+        requestId: "REQ-0001",
+        state: "FAILED",
+        nav: 1002500n,
+        yieldRate: 520n,
+        riskStatus: keccak256(stringToBytes("FAIL")),
+        nonce: 70n,
+        timestamp: now,
+      };
+
+      const sig = await getEIP712AttestationSignature(
+        attester,
+        oracleAdapter.address,
+        chainId,
+        params
+      );
+
+      await oracleAdapter.write.submitAttestation([params, sig]);
+
+      const req = (await vault.read.getRequest(["REQ-0001"])) as any;
+      expect(req.state).to.equal(6); // Rejected
+      expect(req.claimableShares).to.equal(0n);
+
+      await expect(
+        vault.simulate.claimShares(["REQ-0001"], { account: user1.account })
+      ).to.be.rejectedWith("RequestNotClaimable");
+    });
+
+    it("Should revert claim attempt on non-existent request ID", async function () {
+      const { user1, vault } = await deployFixture();
+
+      await expect(
+        vault.simulate.claimShares(["REQ-9999"], { account: user1.account })
+      ).to.be.rejectedWith("RequestNotClaimable");
+    });
   });
 
   describe("3. Fixed-Price P2P Claim Marketplace & T+0 Liquidity", function () {
