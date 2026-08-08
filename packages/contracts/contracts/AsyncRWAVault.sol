@@ -69,6 +69,7 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
     error PrematureMintingViolation();
     error AlreadyClaimed();
     error TransferFailed();
+    error InvalidStateTransition();
 
     modifier onlyOracle() {
         if (msg.sender != oracleAdapter) revert UnauthorizedOracle();
@@ -81,6 +82,32 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
     ) ERC20("RWA Treasury Vault Share", "vRWA") Ownable(msg.sender) {
         asset = IERC20(_underlyingAsset);
         claimRegistry = IClaimRegistry(_claimRegistry);
+    }
+
+    function isValidStateTransition(RequestState from, RequestState to) public pure returns (bool) {
+        if (from == RequestState.Requested && to == RequestState.Pending) return true;
+        if (from == RequestState.Pending && to == RequestState.Verified) return true;
+        if (from == RequestState.Pending && to == RequestState.Claimable) return true;
+        if (from == RequestState.Verified && to == RequestState.Settled) return true;
+        if (from == RequestState.Settled && to == RequestState.Claimable) return true;
+        if (from == RequestState.Claimable && to == RequestState.Finalized) return true;
+
+        if (
+            (from == RequestState.Requested ||
+                from == RequestState.Pending ||
+                from == RequestState.Verified ||
+                from == RequestState.Settled) &&
+            to == RequestState.Rejected
+        ) return true;
+
+        return false;
+    }
+
+    function _transitionState(RequestInfo storage req, RequestState nextState) internal {
+        if (!isValidStateTransition(req.state, nextState)) {
+            revert InvalidStateTransition();
+        }
+        req.state = nextState;
     }
 
     function setOracleAdapter(address _oracleAdapter) external onlyOwner {
@@ -163,11 +190,11 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
     /**
      * @notice Callback from RWAOracleAdapter when real-world state attestation succeeds.
      */
-    function onAttestationSettled(string calldata requestId, uint256 nav) external onlyOracle {
+    function onAttestationSettled(string calldata requestId, uint256 /* nav */) external onlyOracle {
         RequestInfo storage req = _requests[requestId];
         if (req.state != RequestState.Pending && req.state != RequestState.Requested) return;
 
-        req.state = RequestState.Claimable;
+        _transitionState(req, RequestState.Claimable);
 
         if (req.kind == RequestKind.Deposit) {
             // Calculate 1:1 shares based on NAV or 1 USD = 1 share for simplicity (6 decimals)
@@ -183,7 +210,7 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
         RequestInfo storage req = _requests[requestId];
         if (req.state == RequestState.Finalized || req.state == RequestState.Rejected) return;
 
-        req.state = RequestState.Rejected;
+        _transitionState(req, RequestState.Rejected);
         emit RequestRejected(requestId, reason);
     }
 
@@ -204,7 +231,7 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
             claimRegistry.markClaimSettled(req.claimId);
         }
 
-        req.state = RequestState.Finalized;
+        _transitionState(req, RequestState.Finalized);
         uint256 sharesToMint = req.claimableShares;
         req.claimableShares = 0;
 
@@ -221,7 +248,7 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
         if (req.state != RequestState.Claimable) revert RequestNotClaimable();
         if (req.kind != RequestKind.Redeem) revert RequestNotClaimable();
 
-        req.state = RequestState.Finalized;
+        _transitionState(req, RequestState.Finalized);
         uint256 assetsToPayout = req.claimableAssets;
         req.claimableAssets = 0;
 
