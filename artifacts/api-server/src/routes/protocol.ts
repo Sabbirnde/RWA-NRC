@@ -102,33 +102,34 @@ function createSteps(
   terminal: "pending" | "claimable" | "blocked" | "finalized",
 ): RequestStep[] {
   const labels = [
-    "Request created",
-    "RWA data received",
-    "Validation passed",
-    "Risk assessment",
-    "Attestation generated",
-    "Blockchain updated",
+    "Request Created",
+    "Data Requested",
+    "RWA Data Received",
+    "Validation Passed",
+    "Risk Passed",
+    "Attestation Generated",
+    "Blockchain Updated",
     "Claimable",
   ];
   const completeUntil =
     terminal === "pending"
-      ? 0
+      ? 1
       : terminal === "blocked"
-        ? 1
+        ? 2
         : terminal === "claimable" || terminal === "finalized"
-          ? 7
-          : 7;
+          ? 8
+          : 8;
 
   return labels.map((label, index) => {
-    if (terminal === "blocked" && index === 2) {
+    if (terminal === "blocked" && index === 3) {
       return {
         label,
         state: "blocked",
         detail: "External data failed freshness or custody validation.",
       };
     }
-    if (terminal === "finalized" && index === 6) {
-      return { label, state: "complete", detail: "Claim finalized by owner." };
+    if (terminal === "finalized" && index === 7) {
+      return { label, state: "complete", detail: "Shares/assets claimed by owner." };
     }
     if (index < completeUntil) return { label, state: "complete" };
     if (index === completeUntil && terminal === "pending") {
