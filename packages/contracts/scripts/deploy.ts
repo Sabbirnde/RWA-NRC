@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import hre from "hardhat";
+import "@nomicfoundation/hardhat-toolbox-viem";
 
 async function main() {
   const [deployer] = await hre.viem.getWalletClients();
@@ -59,7 +60,7 @@ async function main() {
     timestamp: new Date().toISOString(),
   };
 
-  const outputPath = path.resolve(import.meta.dirname, "../deployment.json");
+  const outputPath = path.resolve(process.cwd(), "deployment.json");
   fs.writeFileSync(outputPath, JSON.stringify(deploymentData, null, 2));
   console.log("Deployment saved to:", outputPath);
 }

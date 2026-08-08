@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import hre from "hardhat";
+import "@nomicfoundation/hardhat-toolbox-viem";
 
 describe("AsyncRWAVault & Protocol Ecosystem", function () {
   async function deployFixture() {

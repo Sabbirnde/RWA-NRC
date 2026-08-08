@@ -4,7 +4,8 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2022",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "types": ["node", "mocha", "@nomicfoundation/hardhat-toolbox-viem"]
   },
   "include": ["scripts/**/*", "test/**/*", "hardhat.config.cjs"]
 }
