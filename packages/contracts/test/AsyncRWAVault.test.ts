@@ -438,9 +438,81 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
       await oracleAdapter.write.submitAttestation([params, sig]);
       await vault.write.claimShares(["REQ-0001"], { account: user1.account });
 
-      // Second claim attempt must revert
+      // Second deposit claim attempt must revert
       await expect(
         vault.simulate.claimShares(["REQ-0001"], { account: user1.account })
+      ).to.be.rejectedWith("RequestNotClaimable");
+    });
+
+    it("Should revert double claimAssets attempt on Finalized redemption request", async function () {
+      const {
+        attester,
+        user1,
+        publicClient,
+        mockUSDC,
+        oracleAdapter,
+        vault,
+      } = await deployFixture();
+
+      // Mint shares to user1 first
+      await mockUSDC.write.faucet([user1.account.address, 1000000000n]);
+      await mockUSDC.write.approve([vault.address, 1000000000n], {
+        account: user1.account,
+      });
+      await vault.write.requestDeposit([1000000000n], {
+        account: user1.account,
+      });
+
+      const chainId = await publicClient.getChainId();
+      const now = BigInt(Math.floor(Date.now() / 1000));
+      const params1 = {
+        assetId: "RWA-001",
+        requestId: "REQ-0001",
+        state: "SETTLED",
+        nav: 1002500n,
+        yieldRate: 520n,
+        riskStatus: keccak256(stringToBytes("PASS")),
+        nonce: 60n,
+        timestamp: now,
+      };
+      const sig1 = await getEIP712AttestationSignature(
+        attester,
+        oracleAdapter.address,
+        chainId,
+        params1
+      );
+      await oracleAdapter.write.submitAttestation([params1, sig1]);
+      await vault.write.claimShares(["REQ-0001"], { account: user1.account });
+
+      // Request redeem of 1000 shares
+      await vault.write.requestRedeem([1000000000000000000000n], {
+        account: user1.account,
+      });
+
+      const params2 = {
+        assetId: "RWA-001",
+        requestId: "REQ-0002",
+        state: "SETTLED",
+        nav: 1002500n,
+        yieldRate: 520n,
+        riskStatus: keccak256(stringToBytes("PASS")),
+        nonce: 61n,
+        timestamp: now,
+      };
+      const sig2 = await getEIP712AttestationSignature(
+        attester,
+        oracleAdapter.address,
+        chainId,
+        params2
+      );
+      await oracleAdapter.write.submitAttestation([params2, sig2]);
+
+      // First claimAssets succeeds
+      await vault.write.claimAssets(["REQ-0002"], { account: user1.account });
+
+      // Second claimAssets attempt must revert with RequestNotClaimable
+      await expect(
+        vault.simulate.claimAssets(["REQ-0002"], { account: user1.account })
       ).to.be.rejectedWith("RequestNotClaimable");
     });
 
