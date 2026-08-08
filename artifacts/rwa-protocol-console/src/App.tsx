@@ -348,7 +348,7 @@ function Demo() {
     />
     <section className="demo-intro">
       <div className="demo-intro-mark"><Play size={17} /></div>
-      <div><b>Audience takeaway</b><span>ERC-7540 handles the asynchronous vault. Middleware handles asynchronous real-world state. The claim market handles the liquidity gap.</span></div>
+      <div><b>Audience takeaway:</b> <span>ERC-7540 handles the asynchronous vault. Middleware handles asynchronous real-world state. The claim market handles the liquidity gap.</span></div>
       <StatusPill value={summary.data?.failureMode ? 'Settlement hold active' : 'Ready to present'} />
     </section>
     <div className="demo-layout">
