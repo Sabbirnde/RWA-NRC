@@ -3,6 +3,18 @@
 > **Asynchronous settlement and liquidity infrastructure for tokenized Real-World Assets (RWAs).**
 > *(This is NOT a generic RWA tokenization platform. It is institutional infrastructure designed specifically for asynchronous banking settlement and temporal liquidity gaps.)*
 
+### 🌟 Most Important Engineering Principle
+> **Build the smallest architecture that genuinely demonstrates the research hypothesis.**
+>
+> ❌ **Do NOT attempt to build**:
+> - A complete bank
+> - A complete oracle network
+> - A production exchange
+> - A legal RWA infrastructure
+> - A production financial product
+>
+> 🎯 **The PoC exists solely to prove the architecture.**
+
 ### 🎯 Core Positioning Principle:
 - **ERC-7540** handles the asynchronous vault.
 - **Our middleware** handles asynchronous real-world state.

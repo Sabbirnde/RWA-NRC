@@ -2,6 +2,12 @@
 
 > **Asynchronous settlement and liquidity infrastructure for tokenized Real-World Assets (RWAs).**
 
+### 🌟 Most Important Engineering Principle
+> **Build the smallest architecture that genuinely demonstrates the research hypothesis.**  
+> The PoC exists solely to prove the architecture. It does NOT attempt to build a complete bank, oracle network, production exchange, legal RWA infrastructure, or commercial financial product.
+
+---
+
 ### 🎯 Core Positioning Principle
 - **ERC-7540** handles the asynchronous vault.
 - **Our middleware** handles asynchronous real-world state.

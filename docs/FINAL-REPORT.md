@@ -4,6 +4,10 @@
 > **Status**: **100% Functional Testnet Proof of Concept (PoC) Complete, Fully Tested & Committed**  
 > **Target Network**: Base Sepolia (`Chain ID: 84532`) / Local Anvil Node
 
+> 🌟 **MOST IMPORTANT ENGINEERING PRINCIPLE**:  
+> **Build the smallest architecture that genuinely demonstrates the research hypothesis.**  
+> The PoC proves the architecture. It does NOT attempt to build a bank, oracle network, production exchange, legal SPV framework, or commercial financial product.
+
 ---
 
 ## 1. What Was Built
