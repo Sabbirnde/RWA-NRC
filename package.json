@@ -4,7 +4,12 @@
   "license": "MIT",
   "scripts": {
     "dev": "pnpm -r --parallel run dev",
+    "test": "pnpm contracts:test && pnpm -r --filter \"./artifacts/**\" --if-present run test",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "lint": "pnpm -r --if-present run lint",
+    "deploy:testnet": "pnpm --filter @workspace/contracts run deploy --network baseSepolia",
+    "contracts:test": "pnpm --filter @workspace/contracts test",
+    "contracts:deploy": "pnpm --filter @workspace/contracts run deploy",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
