@@ -40,6 +40,7 @@ async function buildAll() {
       path.resolve(artifactDir, "src/services/gate4Step4FirecrawlIngestion.test.ts"),
       path.resolve(artifactDir, "src/services/gate4Step5MiddlewareProcessing.test.ts"),
       path.resolve(artifactDir, "src/services/gate6Step1BaselineValidation.test.ts"),
+      path.resolve(artifactDir, "src/services/gate6Step2StaleDataDetection.test.ts"),
     ],
     platform: "node",
     bundle: true,
