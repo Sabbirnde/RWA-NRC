@@ -2,10 +2,52 @@
 
 ## Overview
 
-Tokenized Real-World Assets (RWAs)—such as US Treasury bills, corporate debt, and private credit—cannot operate under standard DeFi vault assumptions. This document explains the architectural rationale behind the 3-layer design of the **Asynchronous RWA Vault Infrastructure**.
+Tokenized Real-World Assets (RWAs)—such as US Treasury bills, corporate debt, and private credit—cannot operate under standard DeFi vault assumptions. This document explains the architectural rationale behind the 3-layer design of the **Asynchronous RWA Vault Infrastructure** bridges this gap across three core domains, with the Middleware serving as the explicit bridge:
 
-```
-[Layer 1: RWA Middleware] ─── (EIP-712 Attestation) ───> [Layer 2: ERC-7540 Async Vault] ─── (Claim Transfer) ───> [Layer 3: Claim Market]
+```mermaid
+flowchart TD
+    subgraph OFFCHAIN["🌐 OFF-CHAIN REAL WORLD"]
+        ISSUER["Issuer"]
+        BANK["Bank / Custodian Simulation"]
+        YIELD["Interest / Yield"]
+        NAV["Net Asset Value (NAV)"]
+        SETTLE_OFF["Off-Chain Settlement"]
+        CREDIT["Credit Risk"]
+        WEB["External Web Data (Treasury.gov)"]
+    end
+
+    subgraph MIDDLEWARE["⚡ RWA MIDDLEWARE (THE BRIDGE)"]
+        INGEST["Ingestion (Firecrawl / Mock API)"]
+        NORM["Normalization (RWAAssetState)"]
+        VAL["Validation Engine (10 Checks + Freshness)"]
+        RISK_ENG["Risk Engine (PASS / FAIL)"]
+        STATE_ENG["State Engine (Request Lifecycle)"]
+        ATTEST["Attestation Service (EIP-712 Signing)"]
+
+        INGEST --> NORM
+        NORM --> VAL
+        VAL --> RISK_ENG
+        RISK_ENG --> STATE_ENG
+        STATE_ENG --> ATTEST
+    end
+
+    subgraph ONCHAIN["⛓️ ON-CHAIN BLOCKCHAIN"]
+        REQ["Deposit / Redeem Request"]
+        VAULT["AsyncRWAVault State"]
+        SHARES["vRWA Vault Shares"]
+        CLAIMS["ClaimRegistry Tokens"]
+        SETTLE_ON["Settlement Callback"]
+        MARKET["Fixed-Price Claim Market"]
+
+        REQ --> VAULT
+        VAULT --> CLAIMS
+        CLAIMS --> MARKET
+        SETTLE_ON --> SHARES
+    end
+
+    OFFCHAIN --> INGEST
+    ATTEST -->|"Signed EIP-712 Proof"| ORACLE["RWAOracleAdapter.sol"]
+    ORACLE --> SETTLE_ON
 ```
 
 ---

@@ -36,6 +36,56 @@ flowchart LR
 
 ---
 
+## 🌉 On-Chain / Off-Chain Gap Bridge Diagram
+
+```mermaid
+flowchart TD
+    subgraph OFFCHAIN["🌐 OFF-CHAIN REAL WORLD"]
+        ISSUER["Issuer"]
+        BANK["Bank / Custodian Simulation"]
+        YIELD["Interest / Yield"]
+        NAV["Net Asset Value (NAV)"]
+        SETTLE_OFF["Off-Chain Settlement"]
+        CREDIT["Credit Risk"]
+        WEB["External Web Data (Treasury.gov)"]
+    end
+
+    subgraph MIDDLEWARE["⚡ RWA MIDDLEWARE (THE BRIDGE)"]
+        INGEST["Ingestion (Firecrawl / Mock API)"]
+        NORM["Normalization (RWAAssetState)"]
+        VAL["Validation Engine (10 Checks + Freshness)"]
+        RISK_ENG["Risk Engine (PASS / FAIL)"]
+        STATE_ENG["State Engine (Request Lifecycle)"]
+        ATTEST["Attestation Service (EIP-712 Signing)"]
+
+        INGEST --> NORM
+        NORM --> VAL
+        VAL --> RISK_ENG
+        RISK_ENG --> STATE_ENG
+        STATE_ENG --> ATTEST
+    end
+
+    subgraph ONCHAIN["⛓️ ON-CHAIN BLOCKCHAIN"]
+        REQ["Deposit / Redeem Request"]
+        VAULT["AsyncRWAVault State"]
+        SHARES["vRWA Vault Shares"]
+        CLAIMS["ClaimRegistry Tokens"]
+        SETTLE_ON["Settlement Callback"]
+        MARKET["Fixed-Price Claim Market"]
+
+        REQ --> VAULT
+        VAULT --> CLAIMS
+        CLAIMS --> MARKET
+        SETTLE_ON --> SHARES
+    end
+
+    OFFCHAIN --> INGEST
+    ATTEST -->|"Signed EIP-712 Proof"| ORACLE["RWAOracleAdapter.sol"]
+    ORACLE --> SETTLE_ON
+```
+
+---
+
 ## 🛡 Firecrawl Trust Boundary Rules
 
 1. **Never Direct to Chain**: Raw Firecrawl data is **never** transmitted directly to smart contracts (`Firecrawl ⇏ Blockchain`).
