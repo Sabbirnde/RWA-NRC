@@ -122,6 +122,7 @@ pnpm run dev
 
 ## 📄 Complete Documentation Map
 
+- [🏅 Sequential Validation Chain Certification](docs/VALIDATION-CHAIN-CERTIFICATION.md)
 - [🏛 Architecture Audit Report](docs/ARCHITECTURE_AUDIT.md)
 - [🏆 Final Protocol Completion Report](docs/FINAL-REPORT.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
