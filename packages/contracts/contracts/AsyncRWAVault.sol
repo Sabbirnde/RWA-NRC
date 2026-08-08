@@ -52,10 +52,12 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
     mapping(uint256 => string) public claimIdToRequestId;
 
     event DepositRequested(string indexed requestId, address indexed owner, uint256 assets);
+    event DepositProcessed(string indexed requestId, address indexed owner, uint256 nav);
     event DepositClaimable(string indexed requestId, address indexed owner, uint256 shares);
     event DepositClaimed(string indexed requestId, address indexed owner, uint256 shares);
 
     event RedeemRequested(string indexed requestId, address indexed owner, uint256 shares);
+    event RedeemProcessed(string indexed requestId, address indexed owner, uint256 nav);
     event RedeemClaimable(string indexed requestId, address indexed owner, uint256 assets);
     event RedeemClaimed(string indexed requestId, address indexed owner, uint256 assets);
 
@@ -189,7 +191,7 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
     /**
      * @notice Callback from RWAOracleAdapter when real-world state attestation succeeds.
      */
-    function onAttestationSettled(string calldata requestId, uint256 /* nav */) external onlyOracle {
+    function onAttestationSettled(string calldata requestId, uint256 nav) external onlyOracle {
         RequestInfo storage req = _requests[requestId];
         if (req.state != RequestState.Pending && req.state != RequestState.Requested) return;
 
@@ -198,9 +200,11 @@ contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
         if (req.kind == RequestKind.Deposit) {
             // Calculate 1:1 shares based on NAV or 1 USD = 1 share for simplicity (6 decimals)
             req.claimableShares = (req.amount * 10**decimals()) / 10**6;
+            emit DepositProcessed(requestId, req.owner, nav);
             emit DepositClaimable(requestId, req.owner, req.claimableShares);
         } else {
             req.claimableAssets = (req.amount * 10**6) / 10**decimals();
+            emit RedeemProcessed(requestId, req.owner, nav);
             emit RedeemClaimable(requestId, req.owner, req.claimableAssets);
         }
     }

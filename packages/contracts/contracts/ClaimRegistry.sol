@@ -29,6 +29,7 @@ contract ClaimRegistry is Ownable {
     event ClaimCreated(uint256 indexed claimId, string indexed requestId, address indexed owner, uint256 faceValue);
     event ClaimTransferred(uint256 indexed claimId, address indexed previousOwner, address indexed newOwner);
     event ClaimStatusUpdated(uint256 indexed claimId, ClaimStatus status);
+    event ClaimSettled(uint256 indexed claimId, address indexed owner);
 
     error UnauthorizedCaller();
     error ClaimNotFound();
@@ -89,6 +90,7 @@ contract ClaimRegistry is Ownable {
 
         claim.status = ClaimStatus.Settled;
         emit ClaimStatusUpdated(claimId, ClaimStatus.Settled);
+        emit ClaimSettled(claimId, claim.owner);
     }
 
     function updateClaimStatus(uint256 claimId, ClaimStatus status) external onlyAuthorized {
