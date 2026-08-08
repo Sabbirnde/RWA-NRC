@@ -22,6 +22,7 @@ async function buildAll() {
       path.resolve(artifactDir, "src/services/middlewareSubcomponents.test.ts"),
       path.resolve(artifactDir, "src/services/e2eValidation.test.ts"),
       path.resolve(artifactDir, "src/services/gate2Step2Normalization.test.ts"),
+      path.resolve(artifactDir, "src/services/gate2Step3SchemaValidation.test.ts"),
     ],
     platform: "node",
     bundle: true,
