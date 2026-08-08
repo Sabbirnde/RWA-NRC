@@ -1,4 +1,13 @@
-# Protocol Architecture Specification
+# System Architecture Specification
+
+> **Asynchronous settlement and liquidity infrastructure for tokenized Real-World Assets (RWAs).**
+
+### 🎯 Core Positioning Principle
+- **ERC-7540** handles the asynchronous vault.
+- **Our middleware** handles asynchronous real-world state.
+- **The claim market** handles the liquidity gap.
+
+---
 
 ## Overview
 

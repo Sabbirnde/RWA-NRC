@@ -1,6 +1,12 @@
 # Asynchronous RWA Vault + Real-World State Middleware + T+0 Claim Market
 
 > **Asynchronous settlement and liquidity infrastructure for tokenized Real-World Assets (RWAs).**
+> *(This is NOT a generic RWA tokenization platform. It is institutional infrastructure designed specifically for asynchronous banking settlement and temporal liquidity gaps.)*
+
+### 🎯 Core Positioning Principle:
+- **ERC-7540** handles the asynchronous vault.
+- **Our middleware** handles asynchronous real-world state.
+- **The claim market** handles the liquidity gap.
 
 This repository contains the complete functional Proof of Concept (PoC) demonstrating an asynchronous ERC-7540 tokenized vault, a Real-World State Middleware with Firecrawl data ingestion and EIP-712 attestation signing, and a peer-to-peer T+0 Claim Market to bridge early liquidity.
 
