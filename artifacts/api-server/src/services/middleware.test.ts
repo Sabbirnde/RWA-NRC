@@ -57,6 +57,22 @@ async function runMiddlewarePipelineTests() {
     throw new Error("Expected FAIL risk status with CUSTODY_NOT_VERIFIED reason");
   }
 
+  // Test 6: Multi-Failure Risk Evaluation (STALE_DATA + CUSTODY_NOT_VERIFIED)
+  const multiFailState = {
+    ...validState,
+    timestamp: Math.floor(Date.now() / 1000) - 1800,
+    custodyStatus: "UNVERIFIED" as const,
+  };
+  const multiVal = validator.validate(multiFailState);
+  const multiRisk = riskEngine.evaluate(multiFailState, multiVal);
+  if (
+    multiRisk.status !== "FAIL" ||
+    !multiRisk.reasons.includes("STALE_DATA") ||
+    !multiRisk.reasons.includes("CUSTODY_NOT_VERIFIED")
+  ) {
+    throw new Error("Expected FAIL risk status with both STALE_DATA and CUSTODY_NOT_VERIFIED reasons");
+  }
+
   console.log("✅ All RWA Middleware Pipeline Tests Passed Successfully!");
 }
 
