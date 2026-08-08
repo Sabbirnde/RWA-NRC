@@ -122,6 +122,8 @@ pnpm run dev
 
 ## 📄 Complete Documentation Map
 
+- [🔐 Signed Attestation & Provenance Specification](docs/ATTESTATION_SPEC.md)
+- [🛡 Oracle Adapter Gateway Specification](docs/ORACLE_ADAPTER_SPEC.md)
 - [⚙️ RWA Middleware Processing & Policy Specification](docs/RWA_MIDDLEWARE_SPEC.md)
 - [📊 Canonical RWA Data Layer Specification](docs/RWA_DATA_SPEC.md)
 - [🏅 Sequential Validation Chain Certification](docs/VALIDATION-CHAIN-CERTIFICATION.md)

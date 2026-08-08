@@ -39,6 +39,7 @@ contract RWAOracleAdapter is EIP712, Ownable {
     uint256 public maxDataAge = 15 minutes;
 
     mapping(uint256 => bool) public usedNonces;
+    mapping(address => bool) public revokedSigners;
 
     event AttestationAccepted(
         string indexed requestId,
@@ -60,10 +61,12 @@ contract RWAOracleAdapter is EIP712, Ownable {
         bytes32 riskStatus
     );
     event SignerUpdated(address indexed newSigner);
+    event SignerRevoked(address indexed revokedSigner);
     event MaxDataAgeUpdated(uint256 newMaxAge);
 
     error InvalidAttestation();
     error UnauthorizedSigner();
+    error RevokedSigner();
     error ReplayedNonce();
     error StaleAttestation();
     error VaultNotConfigured();
@@ -79,6 +82,11 @@ contract RWAOracleAdapter is EIP712, Ownable {
     function setAttesterSigner(address _signer) external onlyOwner {
         attesterSigner = _signer;
         emit SignerUpdated(_signer);
+    }
+
+    function revokeSigner(address _signer) external onlyOwner {
+        revokedSigners[_signer] = true;
+        emit SignerRevoked(_signer);
     }
 
     function setVault(address _vault) external onlyOwner {
@@ -123,6 +131,14 @@ contract RWAOracleAdapter is EIP712, Ownable {
 
         bytes32 hash = _hashTypedDataV4(structHash);
         address recoveredSigner = ECDSA.recover(hash, signature);
+
+        if (revokedSigners[recoveredSigner]) {
+            emit AttestationRejected(params.requestId, params.assetId, "REVOKED_SIGNER");
+            if (vault != address(0)) {
+                IAsyncVaultCallback(vault).onAttestationRejected(params.requestId, "REVOKED_SIGNER");
+            }
+            revert RevokedSigner();
+        }
 
         if (recoveredSigner != attesterSigner) {
             emit AttestationRejected(params.requestId, params.assetId, "INVALID_SIGNER");
