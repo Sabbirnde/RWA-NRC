@@ -43,7 +43,7 @@ export class NormalizationEngine {
     const currency = (input.currency || "USD").trim().toUpperCase();
     const jurisdiction = (input.jurisdiction || "US").trim().toUpperCase();
     const numVal = typeof input.valuation === "number" ? input.valuation : typeof input.nav === "number" ? input.nav : Number(input.valuation || input.nav);
-    const valuation = typeof numVal === "number" && !Number.isNaN(numVal) && numVal > 0 ? Math.round(numVal * 100) / 100 : 0;
+    const valuation = typeof numVal === "number" && Number.isFinite(numVal) && numVal > 0 ? Math.round(numVal * 100) / 100 : 0;
     const valuation6Decimals = BigInt(Math.round(valuation * 1_000_000));
     const timestamp = typeof input.timestamp === "number" ? Math.floor(input.timestamp) : 0;
     const source = (input.source || input.dataSource || "UNKNOWN").trim();
