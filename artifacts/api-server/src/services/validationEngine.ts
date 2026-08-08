@@ -14,8 +14,9 @@ export interface ValidationResult {
 export class ValidationEngine {
   private maxDataAgeSeconds: number;
 
-  constructor(maxDataAgeSeconds = 900) { // 15 minutes default
-    this.maxDataAgeSeconds = maxDataAgeSeconds;
+  constructor(maxDataAgeSeconds?: number) {
+    const envAge = process.env.MAX_DATA_AGE_SECONDS ? parseInt(process.env.MAX_DATA_AGE_SECONDS, 10) : undefined;
+    this.maxDataAgeSeconds = maxDataAgeSeconds ?? envAge ?? 300; // 5 minutes default (300s)
   }
 
   validate(state: RWAAssetState, context?: ValidationContext): ValidationResult {
