@@ -33,6 +33,20 @@
 
 ---
 
+## ⚡ PoC Performance Targets & SLA Guidelines
+
+The PoC prioritizes **correctness, security, and demonstrability** over premature micro-optimization. The system adheres to the following pragmatic performance targets:
+
+| Component / Layer | Performance Target (SLA) | Operational Context |
+|---|---|---|
+| **API Server Responses** | **< 2 seconds** | Standard REST telemetry endpoints (`/api/protocol/summary`, `/api/protocol/requests`). |
+| **Middleware Pipeline** | **< 5 seconds** | Full pipeline execution (Ingest -> Normalize -> Validate -> Risk -> EIP-712 Sign), excluding external web scrapers. |
+| **Frontend State Refresh** | **< 5 seconds** | TanStack Query refetch interval for live conference telemetry updates. |
+| **Firecrawl Ingestion** | **< 30 seconds** | Live web extraction target for external Treasury yield pages. |
+| **Blockchain Confirmation** | *Network Dependent* | Block inclusion time on Base Sepolia (~2s per block) or instant on local Anvil. |
+
+---
+
 ## 📌 Technical & Operational Assumptions
 
 1. **In-Memory Demonstration State**:
