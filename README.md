@@ -110,6 +110,7 @@ pnpm run dev
 
 ## 📄 Complete Documentation Map
 
+- [🏆 Final Protocol Completion Report](docs/FINAL-REPORT.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Protocol Accounting Model & Invariants](docs/ACCOUNTING.md)
 - [Security & Invariants](docs/SECURITY.md)
