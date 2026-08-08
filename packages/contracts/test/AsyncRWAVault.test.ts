@@ -62,7 +62,7 @@ describe("AsyncRWAVault & Protocol Ecosystem", function () {
     const userShares = await vault.read.balanceOf([user1.account.address]);
     expect(userShares).to.equal(0n);
 
-    const req = await vault.read.getRequest(["REQ-0001"]);
+    const req = (await vault.read.getRequest(["REQ-0001"])) as any;
     expect(req.amount).to.equal(1000000000n);
     expect(req.claimableShares).to.equal(0n);
     expect(req.state).to.equal(1); // Pending
