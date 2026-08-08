@@ -92,6 +92,7 @@ pnpm run dev
 ## 📄 Documentation Map
 
 - [Architecture Overview](docs/ARCHITECTURE.md)
+- [Protocol Accounting Model & Invariants](docs/ACCOUNTING.md)
 - [Remaining Work & Production Roadmap](docs/REMAINING-WORK-ROADMAP.md)
 - [Security & Invariants](docs/SECURITY.md)
 - [Data Flow & Trust Boundary](docs/DATA-FLOW.md)
