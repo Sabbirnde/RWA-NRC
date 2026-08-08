@@ -122,6 +122,7 @@ pnpm run dev
 
 ## 📄 Complete Documentation Map
 
+- [⚙️ RWA Middleware Processing & Policy Specification](docs/RWA_MIDDLEWARE_SPEC.md)
 - [📊 Canonical RWA Data Layer Specification](docs/RWA_DATA_SPEC.md)
 - [🏅 Sequential Validation Chain Certification](docs/VALIDATION-CHAIN-CERTIFICATION.md)
 - [🏛 Architecture Audit Report](docs/ARCHITECTURE_AUDIT.md)

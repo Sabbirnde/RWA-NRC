@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { FirecrawlProvider } from "../services/rwaProvider";
+import { NormalizationEngine } from "../services/normalizationEngine";
 import { ValidationEngine } from "../services/validationEngine";
 import { RiskEngine } from "../services/riskEngine";
 import { AttestationService } from "../services/attestationService";
@@ -272,11 +273,13 @@ router.post("/protocol/requests/:requestId/process", async (req, res) => {
   }
 
   const firecrawl = new FirecrawlProvider();
+  const normalizer = new NormalizationEngine();
   const validationEngine = new ValidationEngine();
   const riskEngine = new RiskEngine();
   const attestationService = new AttestationService();
 
-  const assetState = await firecrawl.getAssetState(request.assetId || "RWA-001");
+  const rawAssetState = await firecrawl.getAssetState(request.assetId || "RWA-001");
+  const assetState = normalizer.normalize(rawAssetState);
   const validationResult = validationEngine.validate(assetState);
   const riskResult = riskEngine.evaluate(assetState, validationResult);
 
