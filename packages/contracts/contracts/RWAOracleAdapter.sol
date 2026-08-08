@@ -107,7 +107,7 @@ contract RWAOracleAdapter is EIP712, Ownable {
             revert ReplayedNonce();
         }
 
-        if (block.timestamp > params.timestamp + maxDataAge) {
+        if (block.timestamp > params.timestamp + maxDataAge || params.timestamp > block.timestamp + 300) {
             emit AttestationRejected(params.requestId, params.assetId, "STALE_TIMESTAMP");
             if (vault != address(0)) {
                 IAsyncVaultCallback(vault).onAttestationRejected(params.requestId, "STALE_TIMESTAMP");
