@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts\AsyncRWAVault.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> AsyncRWAVault.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/67</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/80</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/16</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/79</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+&nbsp;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+&nbsp;
+interface IClaimRegistry {
+    function createClaim(
+        string calldata requestId,
+        string calldata assetId,
+        address owner,
+        uint256 faceValue
+    ) external returns (uint256 claimId);
+&nbsp;
+    function markClaimSettled(uint256 claimId) external;
+    function getClaimOwner(uint256 claimId) external view returns (address);
+}
+&nbsp;
+/**
+ * @title AsyncRWAVault
+ * @notice ERC-7540 Asynchronous Vault for tokenized Real-World Assets.
+ * Enforces strict separation between pending requests and claimable balances.
+ */
+contract AsyncRWAVault is ERC20, Ownable, Pausable, ReentrancyGuard {
+    using SafeERC20 for IERC20;
+&nbsp;
+    IERC20 public immutable asset;
+    address public oracleAdapter;
+    IClaimRegistry public claimRegistry;
+&nbsp;
+    uint256 public requestSequence;
+&nbsp;
+    enum RequestKind { Deposit, Redeem }
+    enum RequestState { Requested, Pending, Verified, Settled, Claimable, Finalized, Rejected }
+&nbsp;
+    struct RequestInfo {
+        string requestId;
+        RequestKind kind;
+        address owner;
+        uint256 amount; // Asset amount for deposit, Share amount for redeem
+        uint256 claimableShares; // Final shares awarded upon settlement
+        uint256 claimableAssets; // Final assets awarded upon settlement
+        RequestState state;
+        uint256 createdAt;
+        uint256 claimId;
+    }
+&nbsp;
+    mapping(string =&gt; RequestInfo) private _requests;
+    mapping(uint256 =&gt; string) public claimIdToRequestId;
+&nbsp;
+    event DepositRequested(string indexed requestId, address indexed owner, uint256 assets);
+    event DepositProcessed(string indexed requestId, address indexed owner, uint256 nav);
+    event DepositClaimable(string indexed requestId, address indexed owner, uint256 shares);
+    event DepositClaimed(string indexed requestId, address indexed owner, uint256 shares);
+&nbsp;
+    event RedeemRequested(string indexed requestId, address indexed owner, uint256 shares);
+    event RedeemProcessed(string indexed requestId, address indexed owner, uint256 nav);
+    event RedeemClaimable(string indexed requestId, address indexed owner, uint256 assets);
+    event RedeemClaimed(string indexed requestId, address indexed owner, uint256 assets);
+&nbsp;
+    event RequestRejected(string indexed requestId, string reason);
+    event EmergencyPaused(address indexed operator);
+&nbsp;
+    error UnauthorizedOracle();
+    error InvalidAmount();
+    error RequestNotFound();
+    error RequestNotClaimable();
+    error PrematureMintingViolation();
+    error AlreadyClaimed();
+    error TransferFailed();
+    error InvalidStateTransition();
+&nbsp;
+<span class="fstat-no" title="function not covered" >    modifier onlyOracle() {</span>
+<span class="cstat-no" title="statement not covered" >        if (msg.sender != oracleAdapter) revert UnauthorizedOracle();</span>
+        _;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    constructor(</span>
+        address _underlyingAsset,
+        address _claimRegistry
+    ) ERC20("RWA Treasury Vault Share", "vRWA") Ownable(msg.sender) {
+        asset = IERC20(_underlyingAsset);
+        claimRegistry = IClaimRegistry(_claimRegistry);
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function isValidStateTransition(RequestState from, RequestState to) public pure returns (bool) {</span>
+<span class="cstat-no" title="statement not covered" >        if (from == RequestState.Requested &amp;&amp; to == RequestState.Pending) <span class="cstat-no" title="statement not covered" >return true;</span></span>
+<span class="cstat-no" title="statement not covered" >        if (from == RequestState.Pending &amp;&amp; to == RequestState.Verified) <span class="cstat-no" title="statement not covered" >return true;</span></span>
+<span class="cstat-no" title="statement not covered" >        if (from == RequestState.Pending &amp;&amp; to == RequestState.Claimable) <span class="cstat-no" title="statement not covered" >return true;</span></span>
+<span class="cstat-no" title="statement not covered" >        if (from == RequestState.Verified &amp;&amp; to == RequestState.Settled) <span class="cstat-no" title="statement not covered" >return true;</span></span>
+<span class="cstat-no" title="statement not covered" >        if (from == RequestState.Settled &amp;&amp; to == RequestState.Claimable) <span class="cstat-no" title="statement not covered" >return true;</span></span>
+<span class="cstat-no" title="statement not covered" >        if (from == RequestState.Claimable &amp;&amp; to == RequestState.Finalized) <span class="cstat-no" title="statement not covered" >return true;</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if (</span>
+            (from == RequestState.Requested ||
+                from == RequestState.Pending ||
+                from == RequestState.Verified ||
+                from == RequestState.Settled) &amp;&amp;
+            to == RequestState.Rejected
+        ) <span class="cstat-no" title="statement not covered" >return true;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        return false;</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function _transitionState(RequestInfo storage req, RequestState nextState) internal {</span>
+<span class="cstat-no" title="statement not covered" >        if (!isValidStateTransition(req.state, nextState)) {</span>
+            revert InvalidStateTransition();
+        }
+        req.state = nextState;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function setOracleAdapter(address _oracleAdapter) external onlyOwner {</span>
+        oracleAdapter = _oracleAdapter;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function setClaimRegistry(address _claimRegistry) external onlyOwner {</span>
+        claimRegistry = IClaimRegistry(_claimRegistry);
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function pause() external onlyOwner {</span>
+<span class="cstat-no" title="statement not covered" >        _pause()</span>;
+<span class="cstat-no" title="statement not covered" >        emit EmergencyPaused(msg.sender);</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function unpause() external onlyOwner {</span>
+<span class="cstat-no" title="statement not covered" >        _unpause()</span>;
+    }
+&nbsp;
+    /**
+     * @notice Submit an asynchronous deposit request. Assets are transferred to vault immediately,
+     * but NO SHARES are minted until settlement attestation passes.
+     */
+<span class="fstat-no" title="function not covered" >    function requestDeposit(uint256 amount) external whenNotPaused nonReentrant returns (string memory requestId) {</span>
+<span class="cstat-no" title="statement not covered" >        if (amount == 0) revert InvalidAmount();</span>
+<span class="cstat-no" title="statement not covered" >        asset.safeTransferFrom(msg.sender, address(this), amount)</span>;
+&nbsp;
+        requestSequence++;
+        requestId = string(abi.encodePacked("REQ-", _toString(requestSequence)));
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        uint256 claimId = 0;</span>
+<span class="cstat-no" title="statement not covered" >        if (address(claimRegistry) != address(0)) {</span>
+            claimId = claimRegistry.createClaim(requestId, "RWA-001", msg.sender, amount);
+            claimIdToRequestId[claimId] = requestId;
+        }
+&nbsp;
+        _requests[requestId] = RequestInfo({
+            requestId: requestId,
+            kind: RequestKind.Deposit,
+            owner: msg.sender,
+            amount: amount,
+            claimableShares: 0,
+            claimableAssets: 0,
+            state: RequestState.Pending,
+            createdAt: block.timestamp,
+            claimId: claimId
+        });
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        emit DepositRequested(requestId, msg.sender, amount);</span>
+    }
+&nbsp;
+    /**
+     * @notice Submit an asynchronous redemption request. Vault shares are locked,
+     * but NO ASSETS are claimable until settlement attestation passes.
+     */
+<span class="fstat-no" title="function not covered" >    function requestRedeem(uint256 sharesAmount) external whenNotPaused nonReentrant returns (string memory requestId) {</span>
+<span class="cstat-no" title="statement not covered" >        if (sharesAmount == 0) revert InvalidAmount();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        _transfer(msg.sender, address(this), sharesAmount)</span>;
+&nbsp;
+        requestSequence++;
+        requestId = string(abi.encodePacked("REQ-", _toString(requestSequence)));
+&nbsp;
+        _requests[requestId] = RequestInfo({
+            requestId: requestId,
+            kind: RequestKind.Redeem,
+            owner: msg.sender,
+            amount: sharesAmount,
+            claimableShares: 0,
+            claimableAssets: 0,
+            state: RequestState.Pending,
+            createdAt: block.timestamp,
+            claimId: 0
+        });
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        emit RedeemRequested(requestId, msg.sender, sharesAmount);</span>
+    }
+&nbsp;
+    /**
+     * @notice Callback from RWAOracleAdapter when real-world state attestation succeeds.
+     */
+<span class="fstat-no" title="function not covered" >    function onAttestationSettled(string calldata requestId, uint256 nav) external onlyOracle {</span>
+<span class="cstat-no" title="statement not covered" >        RequestInfo storage req = _requests[requestId];</span>
+<span class="cstat-no" title="statement not covered" >        if (req.state != RequestState.Pending &amp;&amp; req.state != RequestState.Requested) <span class="cstat-no" title="statement not covered" >return;</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        _transitionState(req, RequestState.Claimable)</span>;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if (req.kind == RequestKind.Deposit) {</span>
+            // Calculate 1:1 shares based on NAV or 1 USD = 1 share for simplicity (6 decimals)
+            req.claimableShares = (req.amount * 10**decimals()) / 10**6;
+<span class="cstat-no" title="statement not covered" >            emit DepositProcessed(requestId, req.owner, nav);</span>
+<span class="cstat-no" title="statement not covered" >            emit DepositClaimable(requestId, req.owner, req.claimableShares);</span>
+        } else {
+            req.claimableAssets = (req.amount * 10**6) / 10**decimals();
+<span class="cstat-no" title="statement not covered" >            emit RedeemProcessed(requestId, req.owner, nav);</span>
+<span class="cstat-no" title="statement not covered" >            emit RedeemClaimable(requestId, req.owner, req.claimableAssets);</span>
+        }
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function onAttestationRejected(string calldata requestId, string calldata reason) external onlyOracle {</span>
+<span class="cstat-no" title="statement not covered" >        RequestInfo storage req = _requests[requestId];</span>
+<span class="cstat-no" title="statement not covered" >        if (req.state == RequestState.Finalized || req.state == RequestState.Rejected) <span class="cstat-no" title="statement not covered" >return;</span></span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        _transitionState(req, RequestState.Rejected)</span>;
+<span class="cstat-no" title="statement not covered" >        emit RequestRejected(requestId, reason);</span>
+    }
+&nbsp;
+    /**
+     * @notice Claim shares for a settled deposit request. Respects P2P claim market ownership transfer.
+     */
+<span class="fstat-no" title="function not covered" >    function claimShares(string calldata requestId) external whenNotPaused nonReentrant {</span>
+<span class="cstat-no" title="statement not covered" >        RequestInfo storage req = _requests[requestId];</span>
+<span class="cstat-no" title="statement not covered" >        if (req.state != RequestState.Claimable) revert RequestNotClaimable();</span>
+<span class="cstat-no" title="statement not covered" >        if (req.kind != RequestKind.Deposit) revert RequestNotClaimable();</span>
+&nbsp;
+        // Premature minting protection check
+<span class="cstat-no" title="statement not covered" >        if (req.claimableShares == 0) revert PrematureMintingViolation();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        address recipient = req.owner;</span>
+<span class="cstat-no" title="statement not covered" >        if (req.claimId &gt; 0 &amp;&amp; address(claimRegistry) != address(0)) {</span>
+            recipient = claimRegistry.getClaimOwner(req.claimId);
+<span class="cstat-no" title="statement not covered" >            claimRegistry.markClaimSettled(req.claimId)</span>;
+        }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        _transitionState(req, RequestState.Finalized)</span>;
+<span class="cstat-no" title="statement not covered" >        uint256 sharesToMint = req.claimableShares;</span>
+        req.claimableShares = 0;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        _mint(recipient, sharesToMint)</span>;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        emit DepositClaimed(requestId, recipient, sharesToMint);</span>
+    }
+&nbsp;
+    /**
+     * @notice Claim underlying assets for a settled redemption request.
+     */
+<span class="fstat-no" title="function not covered" >    function claimAssets(string calldata requestId) external whenNotPaused nonReentrant {</span>
+<span class="cstat-no" title="statement not covered" >        RequestInfo storage req = _requests[requestId];</span>
+<span class="cstat-no" title="statement not covered" >        if (req.state != RequestState.Claimable) revert RequestNotClaimable();</span>
+<span class="cstat-no" title="statement not covered" >        if (req.kind != RequestKind.Redeem) revert RequestNotClaimable();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        _transitionState(req, RequestState.Finalized)</span>;
+<span class="cstat-no" title="statement not covered" >        uint256 assetsToPayout = req.claimableAssets;</span>
+        req.claimableAssets = 0;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        _burn(address(this), req.amount)</span>;
+<span class="cstat-no" title="statement not covered" >        asset.safeTransfer(req.owner, assetsToPayout)</span>;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        emit RedeemClaimed(requestId, req.owner, assetsToPayout);</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function getRequest(string calldata requestId) external view returns (RequestInfo memory) {</span>
+<span class="cstat-no" title="statement not covered" >        return _requests[requestId];</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function _toString(uint256 value) internal pure returns (string memory) {</span>
+<span class="cstat-no" title="statement not covered" >        if (value == 0) <span class="cstat-no" title="statement not covered" >return "0000";</span></span>
+<span class="cstat-no" title="statement not covered" >        bytes memory buffer = new bytes(4);</span>
+<span class="cstat-no" title="statement not covered" >        for (uint256 i = 4; i &gt; 0; i--) {</span>
+            buffer[i - 1] = bytes1(uint8(48 + (value % 10)));
+            value /= 10;
+        }
+<span class="cstat-no" title="statement not covered" >        return string(buffer);</span>
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sun Aug 09 2026 01:43:37 GMT+0600 (Bangladesh Standard Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

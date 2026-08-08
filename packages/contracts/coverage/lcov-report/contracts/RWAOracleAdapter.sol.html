@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts\RWAOracleAdapter.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> RWAOracleAdapter.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/28</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/30</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/6</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/39</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+&nbsp;
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import "./RWAAssetRegistry.sol";
+&nbsp;
+interface IAsyncVaultCallback {
+    function onAttestationSettled(string calldata requestId, uint256 nav) external;
+    function onAttestationRejected(string calldata requestId, string calldata reason) external;
+}
+&nbsp;
+/**
+ * @title RWAOracleAdapter
+ * @notice Oracle Adapter contract enforcing EIP-712 signed attestations, freshness checks, and replay prevention.
+ */
+contract RWAOracleAdapter is EIP712, Ownable {
+    using ECDSA for bytes32;
+&nbsp;
+    bytes32 public constant ATTESTATION_TYPEHASH = keccak256(
+        "Attestation(string assetId,string requestId,string state,uint256 nav,uint256 yieldRate,bytes32 riskStatus,uint256 nonce,uint256 timestamp)"
+    );
+&nbsp;
+    struct AttestationParams {
+        string assetId;
+        string requestId;
+        string state;
+        uint256 nav;
+        uint256 yieldRate;
+        bytes32 riskStatus;
+        uint256 nonce;
+        uint256 timestamp;
+    }
+&nbsp;
+    address public attesterSigner;
+    address public vault;
+    RWAAssetRegistry public assetRegistry;
+    uint256 public maxDataAge = 15 minutes;
+&nbsp;
+    mapping(uint256 =&gt; bool) public usedNonces;
+    mapping(address =&gt; bool) public revokedSigners;
+&nbsp;
+    event AttestationAccepted(
+        string indexed requestId,
+        string indexed assetId,
+        string state,
+        uint256 nav,
+        uint256 yieldRate,
+        uint256 timestamp
+    );
+    event AttestationRejected(
+        string indexed requestId,
+        string indexed assetId,
+        string reason
+    );
+    event RWAStateUpdated(
+        string indexed assetId,
+        uint256 nav,
+        uint256 yieldRate,
+        bytes32 riskStatus
+    );
+    event SignerUpdated(address indexed newSigner);
+    event SignerRevoked(address indexed revokedSigner);
+    event MaxDataAgeUpdated(uint256 newMaxAge);
+&nbsp;
+    error InvalidAttestation();
+    error UnauthorizedSigner();
+    error RevokedSigner();
+    error ReplayedNonce();
+    error StaleAttestation();
+    error VaultNotConfigured();
+&nbsp;
+<span class="fstat-no" title="function not covered" >    constructor(</span>
+        address _attesterSigner,
+        address _assetRegistry
+    ) EIP712("RWA-OracleAdapter", "1.0.0") Ownable(msg.sender) {
+        attesterSigner = _attesterSigner;
+        assetRegistry = RWAAssetRegistry(_assetRegistry);
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function setAttesterSigner(address _signer) external onlyOwner {</span>
+        attesterSigner = _signer;
+<span class="cstat-no" title="statement not covered" >        emit SignerUpdated(_signer);</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function revokeSigner(address _signer) external onlyOwner {</span>
+        revokedSigners[_signer] = true;
+<span class="cstat-no" title="statement not covered" >        emit SignerRevoked(_signer);</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function setVault(address _vault) external onlyOwner {</span>
+        vault = _vault;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function setMaxDataAge(uint256 _maxAge) external onlyOwner {</span>
+        maxDataAge = _maxAge;
+<span class="cstat-no" title="statement not covered" >        emit MaxDataAgeUpdated(_maxAge);</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function submitAttestation(</span>
+        AttestationParams calldata params,
+        bytes calldata signature
+    ) external returns (bool) {
+<span class="cstat-no" title="statement not covered" >        if (usedNonces[params.nonce]) {</span>
+<span class="cstat-no" title="statement not covered" >            emit AttestationRejected(params.requestId, params.assetId, "REPLAYED_NONCE");</span>
+            revert ReplayedNonce();
+        }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if (block.timestamp &gt; params.timestamp + maxDataAge || params.timestamp &gt; block.timestamp + 300) {</span>
+<span class="cstat-no" title="statement not covered" >            emit AttestationRejected(params.requestId, params.assetId, "STALE_TIMESTAMP");</span>
+<span class="cstat-no" title="statement not covered" >            if (vault != address(0)) {</span>
+<span class="cstat-no" title="statement not covered" >                IAsyncVaultCallback(vault).onAttestationRejected(params.requestId, "STALE_TIMESTAMP")</span>;
+            }
+            revert StaleAttestation();
+        }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        bytes32 structHash = keccak256(</span>
+            abi.encode(
+                ATTESTATION_TYPEHASH,
+                keccak256(bytes(params.assetId)),
+                keccak256(bytes(params.requestId)),
+                keccak256(bytes(params.state)),
+                params.nav,
+                params.yieldRate,
+                params.riskStatus,
+                params.nonce,
+                params.timestamp
+            )
+        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        bytes32 hash = _hashTypedDataV4(structHash);</span>
+<span class="cstat-no" title="statement not covered" >        address recoveredSigner = ECDSA.recover(hash, signature);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if (revokedSigners[recoveredSigner]) {</span>
+<span class="cstat-no" title="statement not covered" >            emit AttestationRejected(params.requestId, params.assetId, "REVOKED_SIGNER");</span>
+<span class="cstat-no" title="statement not covered" >            if (vault != address(0)) {</span>
+<span class="cstat-no" title="statement not covered" >                IAsyncVaultCallback(vault).onAttestationRejected(params.requestId, "REVOKED_SIGNER")</span>;
+            }
+            revert RevokedSigner();
+        }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if (recoveredSigner != attesterSigner) {</span>
+<span class="cstat-no" title="statement not covered" >            emit AttestationRejected(params.requestId, params.assetId, "INVALID_SIGNER");</span>
+<span class="cstat-no" title="statement not covered" >            if (vault != address(0)) {</span>
+<span class="cstat-no" title="statement not covered" >                IAsyncVaultCallback(vault).onAttestationRejected(params.requestId, "INVALID_SIGNER")</span>;
+            }
+            revert UnauthorizedSigner();
+        }
+&nbsp;
+        usedNonces[params.nonce] = true;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        assetRegistry.updateAsset(</span>
+            params.assetId,
+            "TREASURY",
+            params.nav,
+            params.yieldRate,
+            keccak256("VERIFIED"),
+            keccak256(bytes(params.state)),
+            params.riskStatus
+        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        emit AttestationAccepted(params.requestId, params.assetId, params.state, params.nav, params.yieldRate, params.timestamp);</span>
+<span class="cstat-no" title="statement not covered" >        emit RWAStateUpdated(params.assetId, params.nav, params.yieldRate, params.riskStatus);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        if (vault != address(0)) {</span>
+<span class="cstat-no" title="statement not covered" >            if (keccak256(bytes(params.state)) == keccak256("SETTLED") || keccak256(bytes(params.state)) == keccak256("CLAIMABLE")) {</span>
+<span class="cstat-no" title="statement not covered" >                IAsyncVaultCallback(vault).onAttestationSettled(params.requestId, params.nav)</span>;
+            } else {
+<span class="cstat-no" title="statement not covered" >                IAsyncVaultCallback(vault).onAttestationRejected(params.requestId, "STATE_NOT_SETTLED")</span>;
+            }
+        }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        return true;</span>
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sun Aug 09 2026 01:43:37 GMT+0600 (Bangladesh Standard Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

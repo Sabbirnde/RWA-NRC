@@ -45,7 +45,7 @@ export class NormalizationEngine {
     const rawValuation = typeof input.valuation === "number" ? input.valuation : input.nav || 0;
     const valuation = Math.round(rawValuation * 100) / 100;
     const valuation6Decimals = BigInt(Math.round(valuation * 1_000_000));
-    const timestamp = Math.floor(input.timestamp || Date.now() / 1000);
+    const timestamp = typeof input.timestamp === "number" ? Math.floor(input.timestamp) : 0;
     const source = (input.source || input.dataSource || "UNKNOWN").trim();
     const sourceUrl = (input.sourceUrl || "").trim().toLowerCase();
 
