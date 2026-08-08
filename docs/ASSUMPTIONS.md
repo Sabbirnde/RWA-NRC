@@ -47,6 +47,20 @@ The PoC prioritizes **correctness, security, and demonstrability** over prematur
 
 ---
 
+## 📦 Installed Library Compatibility Matrix (Section 51)
+
+The protocol uses the actual, current dependency versions installed in the workspace without relying on deprecated APIs:
+
+| Library / Standard | Installed Version | Current API Usage |
+|---|---|---|
+| **OpenZeppelin Contracts** | `^5.2.0` | OpenZeppelin v5.2 (`ERC20`, `SafeERC20`, `Ownable`, `Pausable`, `ReentrancyGuard`, `ECDSA`, `EIP712`). |
+| **Viem** | `^2.23.0` | Viem v2.23.0 for off-chain EIP-712 typed data hashing (`hashTypedData`) & contract interaction. |
+| **Hardhat & Ignition** | `^2.22.18` | Hardhat v2.22.18 with `@nomicfoundation/hardhat-viem` v2.0.0 (EVMCancun target). |
+| **Firecrawl API** | Standard v1 REST | `FirecrawlProvider` utilizing structured web scrape / extract endpoints. |
+| **TanStack React Query** | `v5` | Asynchronous query caching & refetching for live conference telemetry. |
+
+---
+
 ## 📌 Technical & Operational Assumptions
 
 1. **In-Memory Demonstration State**:
