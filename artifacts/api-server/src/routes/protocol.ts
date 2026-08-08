@@ -1,4 +1,8 @@
 import { Router, type IRouter } from "express";
+import { FirecrawlProvider } from "../services/rwaProvider";
+import { ValidationEngine } from "../services/validationEngine";
+import { RiskEngine } from "../services/riskEngine";
+import { AttestationService } from "../services/attestationService";
 import {
   BuyProtocolClaimBody,
   BuyProtocolClaimResponse,
@@ -257,7 +261,7 @@ router.post("/protocol/requests", (req, res) => {
   res.status(201).json(CreateProtocolRequestResponse.parse(request));
 });
 
-router.post("/protocol/requests/:requestId/process", (req, res) => {
+router.post("/protocol/requests/:requestId/process", async (req, res) => {
   const params = ProcessProtocolRequestParams.parse(req.params);
   const body = ProcessProtocolRequestBody.parse(req.body);
   const request = protocolState.requests.find((item) => item.id === params.requestId);
@@ -265,21 +269,40 @@ router.post("/protocol/requests/:requestId/process", (req, res) => {
     res.status(404).json({ error: "Request not found" });
     return;
   }
-  const shouldBlock = body.mode === "invalid" || protocolState.failureMode;
+
+  const firecrawl = new FirecrawlProvider();
+  const validationEngine = new ValidationEngine();
+  const riskEngine = new RiskEngine();
+  const attestationService = new AttestationService();
+
+  const assetState = await firecrawl.getAssetState(request.assetId || "RWA-001");
+  const validationResult = validationEngine.validate(assetState);
+  const riskResult = riskEngine.evaluate(assetState, validationResult);
+
+  const shouldBlock = body.mode === "invalid" || protocolState.failureMode || riskResult.status === "FAIL";
+
   if (shouldBlock) {
     request.status = "EXCEPTION";
     request.claimableAmount = 0;
     request.steps = createSteps("blocked");
-    request.message = "Settlement blocked: external data failed validation.";
+    request.message = `Settlement blocked: ${riskResult.reasons.length > 0 ? riskResult.reasons.join(", ") : "external data failed validation."}`;
     protocolState.lastEvent = `Attestation rejected for ${request.id}`;
   } else {
+    await attestationService.generateAttestation(
+      request.assetId || "RWA-001",
+      request.id,
+      "SETTLED",
+      assetState.nav,
+      assetState.yieldRate,
+      true
+    );
     request.status = "CLAIMABLE";
     request.claimableAmount = request.amount;
     request.steps = createSteps("claimable");
     request.message =
       request.kind === "deposit"
-        ? "Attestation accepted. Shares are ready to claim."
-        : "Attestation accepted. Assets are ready to claim.";
+        ? "EIP-712 Attestation accepted. Shares are ready to claim."
+        : "EIP-712 Attestation accepted. Assets are ready to claim.";
     protocolState.lastEvent = `Attestation accepted for ${request.id}`;
   }
   res.json(ProcessProtocolRequestResponse.parse(request));
