@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * @notice Registry tracking asynchronous claim tokens for vault requests before settlement.
  */
 contract ClaimRegistry is Ownable {
-    enum ClaimStatus { Active, Listed, Settled }
+    enum ClaimStatus { Active, Listed, Transferred, Settled, Cancelled, Invalidated }
 
     struct Claim {
         uint256 claimId;
@@ -17,7 +17,11 @@ contract ClaimRegistry is Ownable {
         address owner;
         uint256 faceValue;
         ClaimStatus status;
+        uint256 claimableAt;
+        uint256 expiresAt;
+        bytes32 metadataHash;
         uint256 createdAt;
+        uint256 updatedAt;
     }
 
     uint256 public claimSequence;
@@ -25,6 +29,7 @@ contract ClaimRegistry is Ownable {
     address public claimMarket;
 
     mapping(uint256 => Claim) private _claims;
+    mapping(string => uint256) public requestIdToClaimId;
 
     event ClaimCreated(uint256 indexed claimId, string indexed requestId, address indexed owner, uint256 faceValue);
     event ClaimTransferred(uint256 indexed claimId, address indexed previousOwner, address indexed newOwner);
@@ -36,6 +41,9 @@ contract ClaimRegistry is Ownable {
     error InvalidClaim();
     error NotClaimOwner();
     error ClaimNotTransferable();
+    error ClaimAlreadyExists();
+    error AlreadyClaimed();
+    error InvalidAmount();
 
     modifier onlyAuthorized() {
         if (msg.sender != owner() && msg.sender != vault && msg.sender != claimMarket) {
@@ -60,8 +68,13 @@ contract ClaimRegistry is Ownable {
         address claimOwner,
         uint256 faceValue
     ) external onlyAuthorized returns (uint256 claimId) {
+        if (faceValue == 0) revert InvalidAmount();
+        if (requestIdToClaimId[requestId] != 0) revert ClaimAlreadyExists();
+
         claimSequence++;
         claimId = claimSequence;
+        uint256 nowTs = block.timestamp;
+        bytes32 metaHash = keccak256(abi.encodePacked(requestId, assetId, claimOwner, faceValue, nowTs));
 
         _claims[claimId] = Claim({
             claimId: claimId,
@@ -70,8 +83,14 @@ contract ClaimRegistry is Ownable {
             owner: claimOwner,
             faceValue: faceValue,
             status: ClaimStatus.Active,
-            createdAt: block.timestamp
+            claimableAt: nowTs,
+            expiresAt: nowTs + 30 days,
+            metadataHash: metaHash,
+            createdAt: nowTs,
+            updatedAt: nowTs
         });
+
+        requestIdToClaimId[requestId] = claimId;
 
         emit ClaimCreated(claimId, requestId, claimOwner, faceValue);
     }
@@ -79,18 +98,27 @@ contract ClaimRegistry is Ownable {
     function transferClaim(uint256 claimId, address newOwner) external onlyAuthorized {
         Claim storage claim = _claims[claimId];
         if (claim.claimId == 0) revert ClaimNotFound();
+        if (claim.status == ClaimStatus.Settled || claim.status == ClaimStatus.Cancelled || claim.status == ClaimStatus.Invalidated) {
+            revert ClaimNotTransferable();
+        }
 
         address oldOwner = claim.owner;
         claim.owner = newOwner;
+        claim.status = ClaimStatus.Transferred;
+        claim.updatedAt = block.timestamp;
 
         emit ClaimTransferred(claimId, oldOwner, newOwner);
+        emit ClaimStatusUpdated(claimId, ClaimStatus.Transferred);
     }
 
     function markClaimSettled(uint256 claimId) external onlyAuthorized {
         Claim storage claim = _claims[claimId];
         if (claim.claimId == 0) revert ClaimNotFound();
+        if (claim.status == ClaimStatus.Settled) revert AlreadyClaimed();
 
         claim.status = ClaimStatus.Settled;
+        claim.updatedAt = block.timestamp;
+
         emit ClaimStatusUpdated(claimId, ClaimStatus.Settled);
         emit ClaimSettled(claimId, claim.owner);
     }
@@ -100,6 +128,7 @@ contract ClaimRegistry is Ownable {
         if (claim.claimId == 0) revert ClaimNotFound();
 
         claim.status = status;
+        claim.updatedAt = block.timestamp;
         emit ClaimStatusUpdated(claimId, status);
     }
 

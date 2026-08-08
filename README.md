@@ -122,6 +122,7 @@ pnpm run dev
 
 ## 📄 Complete Documentation Map
 
+- [📜 Claim Registry & Economic Claim Specification](docs/CLAIM_REGISTRY_SPEC.md)
 - [🏦 ERC-7540 Asynchronous Vault Specification](docs/VAULT_SPEC.md)
 - [🔐 Signed Attestation & Provenance Specification](docs/ATTESTATION_SPEC.md)
 - [🛡 Oracle Adapter Gateway Specification](docs/ORACLE_ADAPTER_SPEC.md)

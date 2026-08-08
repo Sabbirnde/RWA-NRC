@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm hardhat compile",
-    "test": "pnpm hardhat test test/AsyncRWAVault.test.ts test/OracleAdapterSecurity.test.ts",
+    "test": "pnpm hardhat test test/AsyncRWAVault.test.ts test/OracleAdapterSecurity.test.ts test/ClaimRegistrySecurity.test.ts",
     "deploy": "pnpm hardhat run scripts/deploy.ts"
   },
   "devDependencies": {
