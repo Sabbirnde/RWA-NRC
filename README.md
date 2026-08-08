@@ -76,6 +76,19 @@ This repository contains the complete functional Proof of Concept (PoC) demonstr
 
 ---
 
+## ⚠️ Proof of Concept (PoC) Scope & Disclosures
+
+- **Firecrawl Data**: Sourced web data is reference information, not authoritative financial data.
+- **Mock Provider**: Software simulation component; does not connect to real banks or fiat wires.
+- **Attestation Signer**: Single dedicated key in PoC; requires MPC / Multi-Sig for production.
+- **Legal Recourse**: No off-chain legal contracts or SPV ownership enforcement is implemented.
+- **Audit Status**: Contracts and middleware have not undergone a third-party security audit.
+- **Oracle Network**: Local oracle gateway; not a decentralized multi-node oracle network.
+- **Claim Market**: Simplified fixed-price inventory model.
+- **Environment**: Testnet and local development only (**Base Sepolia** / Anvil).
+
+---
+
 ## 🚀 Quick Start (Local Development)
 
 ### 1. Install Dependencies & Build Contracts

@@ -1,23 +1,42 @@
-# Protocol Limitations & Assumptions
+# Proof of Concept (PoC) Limitations & Scope Disclosures
 
-This document outlines key technical assumptions, operational constraints, and scope boundaries of the Testnet Proof of Concept (PoC).
+> [!IMPORTANT]  
+> This repository is a **functional Testnet Proof of Concept (PoC)** built to demonstrate asynchronous vault mechanics, off-chain state middleware, and fixed-price claim markets. It is **NOT** a production-grade financial platform.
+
+---
+
+## ⚠️ Explicit PoC Scope Disclosures
+
+1. **Firecrawl Data is Reference Data Only**:
+   Data extracted via Firecrawl represents unverified external web data (e.g., from Treasury.gov) and is **not authoritative financial data**.
+
+2. **Mock Provider is Not a Bank**:
+   The `MockRWAProvider` is a synthetic software component for demo simulation; it does not connect to real fiat banking networks, custodians, or ACH/Fedwire rails.
+
+3. **Centralized Attestation Signer in PoC**:
+   EIP-712 attestations are generated using a single dedicated private key (`ATTESTER_PRIVATE_KEY`). Production environments require a Multi-Sig or Decentralized Threshold Network (e.g. Chainlink Functions / MPC).
+
+4. **No Legal Ownership Enforcement**:
+   The `ClaimRegistry` tracks on-chain entitlement tokens for demo flows. No off-chain legal transfer contracts, SPV agreements, or legal recourse mechanisms are enforced.
+
+5. **No Production Security Audit**:
+   The smart contracts and TypeScript middleware have not undergone a formal third-party security audit.
+
+6. **No Production Oracle Network**:
+   The system relies on a local gateway adapter (`RWAOracleAdapter.sol`) rather than a multi-node decentralized oracle network.
+
+7. **Simplified Claim Market**:
+   `ClaimMarket.sol` implements a basic fixed-price listing and buying mechanism. Production secondary markets require orderbooks, dynamic pricing, and AMM pools.
+
+8. **Testnet Only**:
+   The software is strictly intended for local testing (Anvil/Hardhat) and public testnet deployments (**Base Sepolia**).
 
 ---
 
 ## 📌 Technical & Operational Assumptions
 
-1. **Testnet PoC Scope**:
-   - The current implementation is optimized for testnet demonstration on **Base Sepolia** and local Anvil nodes.
+1. **In-Memory Demonstration State**:
+   Telemetry and request timeline logs operate on fast in-memory maps in `artifacts/api-server`. Production setups should integrate a persistent PostgreSQL indexer.
 
-2. **Decoupled Attester Signer**:
-   - The middleware uses a single dedicated private key (`ATTESTER_PRIVATE_KEY`) for EIP-712 signing. Production deployment should transition to a Multi-Sig or Threshold Cryptography Network (e.g. Chainlink Functions / MPC).
-
-3. **In-Memory Ledgers**:
-   - Fast state operations during conference demos use in-memory stores in `artifacts/api-server`. Production deployments should hook into a persistent PostgreSQL indexer.
-
-4. **Firecrawl Data Ingestion**:
-   - Firecrawl API calls inspect public web endpoints (e.g. Treasury.gov). If Firecrawl is offline or key is unconfigured, system falls back gracefully to `MockRWAProvider`.
-   - Firecrawl data is strictly treated as `"External Reference Data"`, never as an official oracle.
-
-5. **ERC-7540 Asynchronous Semantics**:
-   - The vault follows ERC-7540 async deposit/redemption semantics, storing request sequence states on-chain in `AsyncRWAVault.sol`.
+2. **ERC-7540 Async Vault Semantics**:
+   The vault enforces ERC-7540 asynchronous deposit and redemption queues, storing request sequence numbers on-chain in `AsyncRWAVault.sol`.
