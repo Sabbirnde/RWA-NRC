@@ -67,10 +67,18 @@ export class ValidationEngine {
       errors.push("INVALID_NAV");
     }
 
-    // 7. Source validation
+    // 7. Source & URL validation
     const sourceStr = state.source || state.dataSource || "";
     if (!sourceStr || sourceStr.trim() === "" || sourceStr.includes("Disallowed")) {
       errors.push("UNAUTHORIZED_SOURCE");
+    }
+    if (!state.sourceUrl || typeof state.sourceUrl !== "string" || state.sourceUrl.trim() === "") {
+      errors.push("MISSING_SOURCE_URL");
+    }
+
+    // 7b. Yield rate sanity check
+    if (typeof state.yieldRate !== "number" || Number.isNaN(state.yieldRate) || state.yieldRate < 0 || state.yieldRate > 100) {
+      errors.push("INVALID_YIELD");
     }
 
     // 8. Consistency validation (Custody & Settlement)
