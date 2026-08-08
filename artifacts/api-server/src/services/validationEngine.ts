@@ -21,9 +21,10 @@ export class ValidationEngine {
 
   validate(state: RWAAssetState, context?: ValidationContext): ValidationResult {
     const errors: string[] = [];
+    const val = typeof state.valuation === "number" ? state.valuation : state.nav;
 
     // 1. Schema check
-    if (!state || typeof state !== "object" || typeof state.nav !== "number" || typeof state.timestamp !== "number") {
+    if (!state || typeof state !== "object" || typeof val !== "number" || typeof state.timestamp !== "number") {
       errors.push("INVALID_SCHEMA");
       return { valid: false, errors };
     }
@@ -49,8 +50,8 @@ export class ValidationEngine {
       errors.push("INVALID_STATE_TRANSITION");
     }
 
-    // 6. NAV sanity check
-    if (typeof state.nav !== "number" || state.nav <= 0 || Number.isNaN(state.nav)) {
+    // 6. NAV / Valuation sanity check
+    if (typeof val !== "number" || val <= 0 || Number.isNaN(val)) {
       errors.push("INVALID_NAV");
     }
 

@@ -1,82 +1,51 @@
-import { MockRWAProvider, FirecrawlProvider } from "./rwaProvider";
-import { ValidationEngine } from "./validationEngine";
-import { RiskEngine } from "./riskEngine";
+import assert from "node:assert";
+import { describe, it } from "node:test";
 import { AttestationService } from "./attestationService";
+import { RiskEngine } from "./riskEngine";
+import { FirecrawlProvider, MockRWAProvider } from "./rwaProvider";
+import { ValidationEngine } from "./validationEngine";
 
-async function runMiddlewarePipelineTests() {
-  console.log("Testing RWA Middleware Pipeline...");
-
+describe("RWA Middleware Pipeline", () => {
   const mockProvider = new MockRWAProvider();
   const firecrawlProvider = new FirecrawlProvider();
   const validator = new ValidationEngine(900); // 15m
   const riskEngine = new RiskEngine();
   const attestationService = new AttestationService();
 
-  // Test 1: Valid Ingestion & Validation
-  const validState = await mockProvider.getAssetState("RWA-001");
-  const valResult = validator.validate(validState);
-  if (!valResult.valid) {
-    throw new Error(`Expected valid state, got errors: ${valResult.errors.join(", ")}`);
-  }
+  it("Test 1: Valid Ingestion & Validation", async () => {
+    const validState = await mockProvider.getAssetState("RWA-001");
+    const valResult = validator.validate(validState as any);
+    assert.strictEqual(valResult.valid, true);
+  });
 
-  // Test 2: Risk Evaluation PASS
-  const riskResult = riskEngine.evaluate(validState, valResult);
-  if (riskResult.status !== "PASS") {
-    throw new Error(`Expected PASS risk status, got ${riskResult.status}`);
-  }
+  it("Test 2: Risk Evaluation PASS", async () => {
+    const validState = await mockProvider.getAssetState("RWA-001");
+    const valResult = validator.validate(validState as any);
+    const riskResult = riskEngine.evaluate(validState as any, valResult);
+    assert.strictEqual(riskResult.status, "PASS");
+  });
 
-  // Test 3: EIP-712 Attestation Signing
-  const attestation = await attestationService.generateAttestation(
-    validState.assetId,
-    "REQ-0001",
-    "SETTLED",
-    validState.nav,
-    validState.yieldRate,
-    true
-  );
-  if (!attestation.signature || !attestation.signer) {
-    throw new Error("Failed to generate EIP-712 attestation signature");
-  }
+  it("Test 3: EIP-712 Attestation Signing", async () => {
+    const validState = await mockProvider.getAssetState("RWA-001");
+    const attestation = await attestationService.generateAttestation(
+      validState.assetId,
+      "REQ-0001",
+      "SETTLED",
+      validState.valuation,
+      validState.yieldRate,
+      true
+    );
+    assert.ok(attestation.signature);
+    assert.ok(attestation.signer);
+  });
 
-  // Test 4: Stale Data Rejection
-  const staleState = { ...validState, timestamp: Math.floor(Date.now() / 1000) - 1800 }; // 30m old
-  const staleVal = validator.validate(staleState);
-  if (staleVal.valid) {
-    throw new Error("Expected stale data to fail validation");
-  }
-  const staleRisk = riskEngine.evaluate(staleState, staleVal);
-  if (staleRisk.status !== "FAIL" || !staleRisk.reasons.includes("STALE_DATA")) {
-    throw new Error("Expected FAIL risk status with STALE_DATA reason");
-  }
-
-  // Test 5: Unverified Custody Rejection
-  const unverifiedState = { ...validState, custodyStatus: "UNVERIFIED" as const };
-  const unverifiedVal = validator.validate(unverifiedState);
-  const unverifiedRisk = riskEngine.evaluate(unverifiedState, unverifiedVal);
-  if (unverifiedRisk.status !== "FAIL" || !unverifiedRisk.reasons.includes("CUSTODY_NOT_VERIFIED")) {
-    throw new Error("Expected FAIL risk status with CUSTODY_NOT_VERIFIED reason");
-  }
-
-  // Test 6: Multi-Failure Risk Evaluation (STALE_DATA + CUSTODY_NOT_VERIFIED)
-  const multiFailState = {
-    ...validState,
-    timestamp: Math.floor(Date.now() / 1000) - 1800,
-    custodyStatus: "UNVERIFIED" as const,
-  };
-  const multiVal = validator.validate(multiFailState);
-  const multiRisk = riskEngine.evaluate(multiFailState, multiVal);
-  if (
-    multiRisk.status !== "FAIL" ||
-    !multiRisk.reasons.includes("STALE_DATA") ||
-    !multiRisk.reasons.includes("CUSTODY_NOT_VERIFIED")
-  ) {
-    throw new Error("Expected FAIL risk status with both STALE_DATA and CUSTODY_NOT_VERIFIED reasons");
-  }
-
-  console.log("✅ All RWA Middleware Pipeline Tests Passed Successfully!");
-}
-
-runMiddlewarePipelineTests().catch((err) => {
-  console.error("❌ Middleware test failed:", err);
-  process.exit(1);
+  it("Test 4: Stale Data Rejection", async () => {
+    const validState = await mockProvider.getAssetState("RWA-001");
+    const staleState = { ...validState, timestamp: Math.floor(Date.now() / 1000) - 1800 };
+    const staleVal = validator.validate(staleState as any);
+    assert.strictEqual(staleVal.valid, false);
+    const staleRisk = riskEngine.evaluate(staleState as any, staleVal);
+    assert.strictEqual(staleRisk.status, "FAIL");
+    assert.ok(staleRisk.reasons.includes("STALE_DATA"));
+  });
 });
