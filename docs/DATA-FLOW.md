@@ -6,35 +6,32 @@ This document details the end-to-end data lifecycle from external real-world ref
 
 ## 🔀 Complete Data Pipeline Sequence
 
-```
-[1. External Web Data / Mock API]
-               │
-               ▼
-[2. FirecrawlProvider] (Data Extraction)
-               │
-               ▼
-[3. RWAAssetState Struct] (Normalization)
-               │
-               ▼
-[4. ValidationEngine] (10-Point Sanity Check)
-               │
-               ▼
-[5. FreshnessEngine] (MAX_DATA_AGE <= 300s Check)
-               │
-               ▼
-[6. RiskEngine] (PASS / FAIL Evaluation)
-               │
-               ▼
-[7. AttestationService] (EIP-712 Signing via ATTESTER_PRIVATE_KEY)
-               │
-               ▼
-[8. RWAOracleAdapter.sol] (ECDSA Recovery & Nonce Check)
-               │
-               ▼
-[9. AsyncRWAVault.sol] (onAttestationSettled Callback)
-               │
-               ▼
-[10. User / Claim Owner] (claimShares / claimAssets)
+```mermaid
+flowchart LR
+    RW["Real World / External Sources"]
+    FC["Firecrawl"]
+    API["Mock RWA API"]
+    MW["RWA Middleware"]
+    VAL["Validation + Freshness"]
+    RISK["Risk Engine"]
+    ATT["Attestation Service"]
+    ORACLE["Oracle Adapter"]
+    VAULT["ERC-7540 Async Vault"]
+    CLAIM["Claim Registry"]
+    MARKET["Claim Market"]
+    USER["User"]
+
+    RW --> FC
+    API --> MW
+    FC --> MW
+    MW --> VAL
+    VAL --> RISK
+    RISK --> ATT
+    ATT --> ORACLE
+    ORACLE --> VAULT
+    VAULT --> CLAIM
+    CLAIM --> MARKET
+    MARKET --> USER
 ```
 
 ---
