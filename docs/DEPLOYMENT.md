@@ -1,33 +1,46 @@
-# Deployment Guide
+# Deployment & Network Setup Guide
 
-## Prerequisites
+This document outlines deployment procedures for local development (Hardhat / Anvil) and public testnets (Base Sepolia).
 
-- Node.js 20+
-- pnpm 10+
+---
 
-## Local Hardhat Node Deployment
+## 🛠 Local Anvil / Hardhat Node Deployment
 
 ```bash
-# 1. Compile smart contracts
+# 1. Compile Smart Contracts
 pnpm --filter @workspace/contracts run build
 
-# 2. Run local hardhat network node (optional)
-npx hardhat node
-
-# 3. Deploy smart contracts
+# 2. Deploy Contracts to Local Network
 pnpm --filter @workspace/contracts run deploy
 ```
 
-## Base Sepolia Testnet Deployment
+---
 
-Set environment variables in `.env`:
+## 🌐 Base Sepolia Testnet Deployment
+
+### 1. Environment Setup
+In root `.env` (derived from `.env.example`):
 ```env
 RPC_URL=https://sepolia.base.org
-PRIVATE_KEY=0x...
-ATTESTER_ADDRESS=0x...
+PRIVATE_KEY=0xYOUR_TESTNET_DEPLOYER_PRIVATE_KEY
+ATTESTER_PRIVATE_KEY=0xYOUR_ATTESTER_SIGNER_PRIVATE_KEY
+ETHERSCAN_API_KEY=YOUR_BASESCAN_API_KEY
 ```
 
-Deploy:
+### 2. Execute Deployment Script
 ```bash
-pnpm --filter @workspace/contracts run deploy --network baseSepolia
+pnpm deploy:testnet
+```
+
+Outputs contract addresses to `packages/contracts/deployment.json`:
+- `MockUSDC`
+- `RWAAssetRegistry`
+- `RWAOracleAdapter`
+- `ClaimRegistry`
+- `AsyncRWAVault`
+- `ClaimMarket`
+
+### 3. Verify Source Code on Basescan
+```bash
+pnpm --filter @workspace/contracts hardhat verify --network baseSepolia <CONTRACT_ADDRESS> <CONSTRUCTOR_ARGS>
 ```

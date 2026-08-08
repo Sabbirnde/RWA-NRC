@@ -89,15 +89,15 @@ pnpm run dev
 
 ---
 
-## 📄 Documentation Map
+## 📄 Complete Documentation Map
 
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Protocol Accounting Model & Invariants](docs/ACCOUNTING.md)
-- [Remaining Work & Production Roadmap](docs/REMAINING-WORK-ROADMAP.md)
 - [Security & Invariants](docs/SECURITY.md)
 - [Data Flow & Trust Boundary](docs/DATA-FLOW.md)
 - [5-Minute Conference Demo Runbook](docs/DEMO.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Deployment & Network Setup Guide](docs/DEPLOYMENT.md)
 - [REST & Webhook API Reference](docs/API.md)
-- [Threat Model](docs/THREAT-MODEL.md)
-- [PoC Limitations & Assumptions](docs/ASSUMPTIONS.md)
+- [Threat Model & Risk Analysis](docs/THREAT-MODEL.md)
+- [Protocol Limitations & Assumptions](docs/ASSUMPTIONS.md)
+- [Remaining Work & Production Roadmap](docs/REMAINING-WORK-ROADMAP.md)

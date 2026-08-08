@@ -1,20 +1,23 @@
-# API Reference & Endpoints
+# REST & Webhook API Reference Specifications
 
-## Protocol Endpoints (`/api`)
+The RWA State Middleware exposes REST endpoints and webhook listeners for protocol telemetry, request processing, external data extraction, and settlement events.
 
-- `GET /api/healthz` — System health check.
-- `GET /api/protocol/summary` — Protocol dashboard summary & state postures.
-- `GET /api/protocol/assets` — Monitored RWA asset registry.
-- `GET /api/protocol/requests` — Asynchronous vault deposit & redemption requests.
-- `POST /api/protocol/requests` — Create pending deposit/redemption request.
-- `POST /api/protocol/requests/:requestId/process` — Run middleware validation, risk check & EIP-712 attestation.
+---
 
-## Firecrawl Endpoints
+## 📡 REST Endpoints
 
-- `POST /api/firecrawl/search` — Search web sources for reference data.
-- `POST /api/firecrawl/scrape` — Scrape clean markdown from selected source.
-- `POST /api/firecrawl/extract` — Extract structured RWA NAV & custody fields.
+### Protocol Telemetry
+- `GET /api/protocol/summary` — Returns TVL, Total Assets, NAV, Yield Rate, Pending/Claimable Deposits, Pending Redemptions, and Risk Posture.
+- `GET /api/protocol/requests` — Lists all requests in flight with 8-step timeline statuses.
+- `POST /api/protocol/requests` — Submits a new deposit or redemption request.
+- `POST /api/protocol/requests/:requestId/process` — Executes full middleware pipeline (Ingest -> Normalize -> Validate -> Risk -> Attest).
+- `POST /api/protocol/requests/:requestId/claim` — Finalizes claim and updates protocol state.
 
-## Webhooks
+### Firecrawl Data Extraction
+- `POST /api/firecrawl/search` — Searches reference web pages for Treasury yield settlement data.
+- `POST /api/firecrawl/scrape` — Scrapes selected URLs and returns clean markdown reference info.
+- `POST /api/firecrawl/extract` — Extracts normalized RWA reference state (`RWAAssetState`).
 
-- `POST /api/webhooks/rwa-settlement` — Idempotent RWA settlement confirmation event listener.
+### Webhook Event Receiver
+- `POST /api/webhooks/rwa-settlement` — Idempotent webhook receiver. Accepts settlement payloads, auto-derives `eventId` if missing, stores full event record, and ignores duplicate submissions.
+- `GET /api/webhooks/rwa-settlement/history` — Lists all processed webhook records.
