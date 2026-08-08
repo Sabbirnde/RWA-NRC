@@ -1,0 +1,20 @@
+# Gate 7 — Hypothesis H1 Final Acceptance Test Report
+
+This document records the final acceptance evaluation for Research Hypothesis H1 across all 10 acceptance criteria (H1-01 through H1-10).
+
+---
+
+## Final Acceptance Matrix
+
+| Criterion Code | Requirement Description | Status | Evidence Reference & Summary |
+|---|---|---|---|
+| **H1-01** | Deposit request can exist without immediate final share issuance | **PASS** | [`Gate7H1Step3DepositRequestPending.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step3DepositRequestPending.test.ts) — `requestDeposit()` creates `REQ-0001` in `PENDING` state; `balanceOf(Alice) == 0`. (Tx: `0x7fa281b3c94d...`). |
+| **H1-02** | PENDING is an explicit state | **PASS** | [`Gate7H1Step4PendingStateVerification.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step4PendingStateVerification.test.ts) — `RequestState.Pending` is Enum index `1`, stored explicitly in contract mapping with `isPending == true`. |
+| **H1-03** | External RWA verification occurs before final settlement | **PASS** | [`gate7H1Step5RwaVerificationDependency.test.ts`](file:///e:/Projects/Rwa-Claim-Market/artifacts/api-server/src/services/gate7H1Step5RwaVerificationDependency.test.ts) — Normalization, 15-rule schema validation, freshness evaluation (age 0s < 600s), and risk engine pass before attestation. |
+| **H1-04** | A valid attestation can enable progression toward settlement | **PASS** | [`Gate7H1Step6SignedAttestationValidation.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step6SignedAttestationValidation.test.ts) — `RWAOracleAdapter.submitAttestation()` verifies EIP-712 signature and transitions request to `CLAIMABLE`. (Tx: `0xb8e967a57a...`). |
+| **H1-05** | PENDING does not issue final shares | **PASS** | [`Gate7H1Step4PendingStateVerification.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step4PendingStateVerification.test.ts) — Attempting `claimShares()` on `PENDING` request reverts with `RequestNotClaimable()`; `balanceOf(Alice) == 0`. |
+| **H1-06** | CLAIMABLE does not cause unintended premature settlement/share issuance | **PASS** | [`Gate7H1Step8CoreH1ConditionValidation.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step8CoreH1ConditionValidation.test.ts) — Request in `CLAIMABLE` state calculates `claimableShares`, but `balanceOf(Alice) == 0` until `claimShares()` is called. |
+| **H1-07** | Final settlement produces correct accounting | **PASS** | [`Gate7H1Step9FinalSettlementValidation.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step9FinalSettlementValidation.test.ts) — `claimShares()` mints $1,000\text{ vRWA}$ shares $1:1$ backed by $1,000\text{ USDC}$ in vault escrow. (Tx: `0xa59fbfccab...`). |
+| **H1-08** | Invalid RWA data prevents settlement | **PASS** | [`Gate7H1Step11NegativeControlExperiment.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step11NegativeControlExperiment.test.ts) — Stale RWA data (age 37m > 10m) fails freshness, reverts with `StaleAttestation`, and leaves request in `PENDING`. (Tx: `0xe28fbd521e...`). |
+| **H1-09** | The system records asynchronous time separation | **PASS** | [`Gate7H1Step10TemporalSeparationValidation.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step10TemporalSeparationValidation.test.ts) — $T_0 = 1770522108s$ (Deposit, Block 4), $T_2 = 1770522115s$ (Verification), $T_5 = 1770522118s$ (Settlement, Block 6); $10s$ delay. |
+| **11-10** | The complete lifecycle is auditable | **PASS** | [`Gate7H1Step3DepositRequestPending.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step3DepositRequestPending.test.ts) & [`Gate7H1Step9FinalSettlementValidation.test.ts`](file:///e:/Projects/Rwa-Claim-Market/packages/contracts/test/Gate7H1Step9FinalSettlementValidation.test.ts) — 6 core events + JSON middleware logs provide complete auditability. |
