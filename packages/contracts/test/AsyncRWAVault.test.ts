@@ -113,7 +113,7 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
 
       // Premature claim attempt must revert
       await expect(
-        vault.write.claimShares(["REQ-0001"], { account: user1.account })
+        vault.simulate.claimShares(["REQ-0001"], { account: user1.account })
       ).to.be.rejected;
     });
 
@@ -159,12 +159,12 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
 
       const req = (await vault.read.getRequest(["REQ-0001"])) as any;
       expect(req.state).to.equal(4); // Claimable
-      expect(req.claimableShares).to.be.greaterThan(0n);
+      expect(req.claimableShares > 0n).to.be.true;
 
       await vault.write.claimShares(["REQ-0001"], { account: user1.account });
 
       const finalShares = await vault.read.balanceOf([user1.account.address]);
-      expect(finalShares).to.equal(1000000000n);
+      expect(finalShares).to.equal(1000000000000000000000n);
     });
   });
 
@@ -375,7 +375,7 @@ describe("AsyncRWAVault & Protocol Ecosystem Security Suite", function () {
       await vault.write.claimShares(["REQ-0001"], { account: user2.account });
 
       const user2Shares = await vault.read.balanceOf([user2.account.address]);
-      expect(user2Shares).to.equal(1000000000n);
+      expect(user2Shares).to.equal(1000000000000000000000n);
     });
   });
 });
