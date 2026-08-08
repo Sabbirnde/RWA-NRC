@@ -139,3 +139,22 @@ This multi-step asynchronous flow introduces unique attack surfaces that require
 - **Reentrancy across Async Boundaries**: Ensuring that token transfers in the Claim Market cannot re-enter vault or registry state.
 
 The protocol covers all 17 asynchronous security vectors in an automated 18-case test suite (`packages/contracts/test/AsyncRWAVault.test.ts`).
+
+---
+
+## 📐 Implementation Rules & Standards Compliance
+
+1. **Standard OpenZeppelin Primitives**:
+   All security primitives—`ReentrancyGuard`, `Pausable`, `Ownable`, `SafeERC20`, `ECDSA`, and `EIP712`—are imported directly from `@openzeppelin/contracts` v5 without duplicating logic or inventing custom security forks.
+
+2. **Strict ERC-7540 Async API Alignment**:
+   Async vault methods (`requestDeposit`, `requestRedeem`, `pendingDepositRequest`, `pendingRedeemRequest`, `claimableDepositRequest`, `claimableRedeemRequest`, `claimShares`, `claimAssets`) strictly mirror standard ERC-7540 asynchronous vault semantics.
+
+3. **Modular Layering**:
+   - `AsyncRWAVault.sol` handles vault balances & share minting.
+   - `RWAOracleAdapter.sol` handles EIP-712 signature verification & nonce tracking.
+   - `ClaimRegistry.sol` handles tokenized entitlement claims.
+   - `ClaimMarket.sol` handles fixed-price secondary sales.
+
+4. **Zero Proprietary Standard Forks**:
+   The protocol adheres to standard EIP-712 typed structured data hashing (`keccak256(...)`) and standard EVM token standards without modifying underlying transfer mechanisms.
