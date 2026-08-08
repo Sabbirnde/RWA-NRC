@@ -5,11 +5,11 @@ import { Toaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Activity, AlertTriangle, ArrowDownToLine, ArrowUpRight, BadgeCheck, BarChart3,
-  Boxes, Check, ChevronRight, CircleAlert, CircleDashed, Clock3, Database,
-  FileCheck2, Gauge, Info, Layers3, LockKeyhole, Menu, RefreshCw,
-  Route as RouteIcon, ServerCog, ShieldCheck, SlidersHorizontal, Sparkles,
-  WalletCards, X, Zap,
+  Activity, AlertTriangle, ArrowDownToLine, ArrowRight, ArrowUpRight, BadgeCheck, BarChart3,
+  BookOpen, Boxes, Check, CheckCircle2, ChevronRight, CircleAlert, CircleDashed, Clock3, Copy,
+  Database, FileCheck2, Gauge, Info, Layers3, LockKeyhole, Menu, Play, RefreshCw,
+  RotateCcw, Route as RouteIcon, ServerCog, ShieldCheck, SlidersHorizontal, Sparkles,
+  UserRound, WalletCards, X, Zap,
 } from 'lucide-react';
 import {
   getGetProtocolSummaryQueryKey, getListProtocolClaimsQueryKey,
@@ -26,6 +26,7 @@ const queryClient = new QueryClient();
 
 const navItems = [
   { href: '/', label: 'Protocol overview', icon: Activity },
+  { href: '/demo', label: 'Presenter runbook', icon: Play },
   { href: '/vault', label: 'Vault accounting', icon: WalletCards },
   { href: '/assets', label: 'RWA asset monitor', icon: Boxes },
   { href: '/requests', label: 'Request processing', icon: RouteIcon },
@@ -165,7 +166,7 @@ function Vault() {
 
 function Assets() {
   const { data, isLoading, isError } = useListRwaAssets({ query: { queryKey: getListRwaAssetsQueryKey() } });
-  const assets = data || [];
+  const assets = Array.isArray(data) ? data : [];
   return <><PageHeader eyebrow="RWA asset monitor" title="Collateral, with provenance." description="A single monitor for NAV, custody, settlement and risk posture across tokenized real-world assets." action={<div className="source-note"><Database size={14} /><span>External Reference Data<br /><b>Firecrawl · mock-provider values</b></span></div>} /><div className="asset-overview"><div className="asset-count"><span>Monitored assets</span><b>{assets.length.toString().padStart(2, '0')}</b></div><div className="asset-rule"><ShieldCheck size={17} /><span>Settlement only proceeds when custody, source freshness and risk status agree.</span></div></div><section className="panel asset-panel"><SectionTitle icon={Boxes} title="Asset registry" meta="Normalized reference view" />{isLoading ? <div className="asset-grid">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="asset-card" />)}</div> : isError ? <ErrorState /> : assets.length ? <div className="asset-grid">{assets.map(asset => <AssetCard key={asset.assetId} asset={asset} />)}</div> : <div className="empty-state"><Boxes size={23} /><strong>No monitored assets</strong><span>Asset registry is empty. Check the external reference data connection.</span></div>}</section></>;
 }
 
@@ -178,8 +179,222 @@ function Requests() {
   const process = useProcessProtocolRequest(); const claim = useClaimProtocolRequest(); const qc = useQueryClient();
   const refresh = () => { qc.invalidateQueries({ queryKey: getListProtocolRequestsQueryKey() }); qc.invalidateQueries({ queryKey: getGetProtocolSummaryQueryKey() }); };
   const [mode, setMode] = useState<'valid' | 'invalid'>('valid');
-  const rows = data || [];
+  const rows = Array.isArray(data) ? data : [];
   return <><PageHeader eyebrow="Request processing" title="Operate the queue." description="Review each lifecycle step, run validation deliberately, and claim only after attestation is complete." action={<div className="demo-control"><span className="control-label">Process mode</span><Button size="sm" variant={mode === 'valid' ? 'default' : 'outline'} onClick={() => setMode('valid')} data-testid="button-process-mode-valid">Valid</Button><Button size="sm" variant={mode === 'invalid' ? 'destructive' : 'outline'} onClick={() => setMode('invalid')} data-testid="button-process-mode-invalid">Invalid</Button></div>} />{isLoading ? <div className="panel loading-panel">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} />)}</div> : isError ? <ErrorState /> : rows.length === 0 ? <div className="panel"><div className="empty-state"><RouteIcon size={24} /><strong>The queue is clear</strong><span>No asynchronous requests are waiting for middleware processing.</span><Link href="/vault" className="inline-link">Create a request <ArrowUpRight size={13} /></Link></div></div> : <div className="request-stack">{rows.map(row => <RequestTimeline key={row.id} row={row} onProcess={() => process.mutate({ requestId: row.id, data: { mode } }, { onSuccess: refresh })} onClaim={() => claim.mutate({ requestId: row.id }, { onSuccess: refresh })} processing={process.isPending} claiming={claim.isPending} />)}</div>}</>;
+}
+
+type DemoStep = {
+  number: string;
+  eyebrow: string;
+  title: string;
+  summary: string;
+  note: string;
+  audience: string;
+  truth: string;
+};
+
+const demoSteps: DemoStep[] = [
+  {
+    number: '01',
+    eyebrow: 'Set the stakes',
+    title: 'The temporal mismatch',
+    summary: 'Traditional vaults assume a deposit settles immediately. Real-world assets do not.',
+    note: 'Traditional vaults assume atomic execution. RWA settlement is asynchronous, so the architecture has to make time visible.',
+    audience: 'The problem is not tokenization alone. It is the gap between on-chain intent and off-chain settlement.',
+    truth: 'This console is built around one rule: uncertainty should delay settlement, never accelerate it.',
+  },
+  {
+    number: '02',
+    eyebrow: 'Alice deposits',
+    title: 'A request is not a balance',
+    summary: 'Alice submits 1,000 USDC. The vault records intent, but issues no final shares.',
+    note: 'Alice has created a claim on the system, not a finalized balance. The pending state is the protection.',
+    audience: 'Point to Request REQ-0001 and its zero claimable amount.',
+    truth: 'PENDING means claimableAmount is zero. No middleware approval has reached the vault.',
+  },
+  {
+    number: '03',
+    eyebrow: 'Prove the state',
+    title: 'Validation earns claimability',
+    summary: 'The middleware normalizes reference data, checks freshness, evaluates risk, and generates an attestation.',
+    note: 'We are not treating external data as an oracle. It has to pass the full trust boundary before the vault can move.',
+    audience: 'Run valid processing, then show the timeline moving from pending to claimable.',
+    truth: 'Only a successful validation path changes the request to CLAIMABLE and sets a non-zero claimable amount.',
+  },
+  {
+    number: '04',
+    eyebrow: 'Alice claims',
+    title: 'Settlement becomes final',
+    summary: 'Alice claims the shares after the attestation is accepted. Premature minting never occurs.',
+    note: 'The user can claim now because the protocol has evidence, not because a button was pressed.',
+    audience: 'Click Claim Shares and point to the finalized request state.',
+    truth: 'Claiming is one-way. A finalized request cannot return to pending or be claimed twice.',
+  },
+  {
+    number: '05',
+    eyebrow: 'Bob provides liquidity',
+    title: 'T+0 without changing the RWA',
+    summary: 'Alice sells a fixed-price claim for 980 USDC. Bob buys it and becomes the claim owner.',
+    note: 'The claim market closes the liquidity gap. Alice exits early; Bob receives the future settlement right.',
+    audience: 'Open the claim market and buy the listed Alice claim as Bob.',
+    truth: 'The market transfers the claim, not the underlying asset. The settlement timetable stays intact.',
+  },
+  {
+    number: '06',
+    eyebrow: 'Fail safely',
+    title: 'Delay is a successful outcome',
+    summary: 'A new request meets stale or unverified data. Risk fails, attestation is rejected, and settlement stays blocked.',
+    note: 'This is the safety demo. The protocol does not guess. It holds the request until the external state is trustworthy again.',
+    audience: 'Create the failure case, run blocked validation, and show zero claimable value.',
+    truth: 'External Reference Data is an input, never an official oracle. The vault remains pending when confidence drops.',
+  },
+];
+
+function Demo() {
+  const summary = useGetProtocolSummary({ query: { queryKey: getGetProtocolSummaryQueryKey(), refetchInterval: 12000 } });
+  const requests = useListProtocolRequests({ query: { queryKey: getListProtocolRequestsQueryKey() } });
+  const claims = useListProtocolClaims({ query: { queryKey: getListProtocolClaimsQueryKey() } });
+  const create = useCreateProtocolRequest();
+  const process = useProcessProtocolRequest();
+  const claim = useClaimProtocolRequest();
+  const buy = useBuyProtocolClaim();
+  const setFailure = useSetProtocolFailureMode();
+  const reset = useResetProtocolDemo();
+  const qc = useQueryClient();
+  const [activeStep, setActiveStep] = useState(0);
+  const [failureRequestId, setFailureRequestId] = useState<string | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
+
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: getGetProtocolSummaryQueryKey() });
+    qc.invalidateQueries({ queryKey: getListProtocolRequestsQueryKey() });
+    qc.invalidateQueries({ queryKey: getListProtocolClaimsQueryKey() });
+    qc.invalidateQueries({ queryKey: getListRwaAssetsQueryKey() });
+  };
+  const aliceRequest = requests.data?.find((request) => request.id === 'REQ-0001')
+    || requests.data?.find((request) => request.owner.includes('Alice'));
+  const aliceClaim = claims.data?.find((item) => item.id === 'CLM-0001')
+    || claims.data?.find((item) => item.owner.includes('Alice'));
+  const failureRequest = failureRequestId
+    ? requests.data?.find((request) => request.id === failureRequestId)
+    : undefined;
+  const busy = create.isPending || process.isPending || claim.isPending || buy.isPending || setFailure.isPending;
+  const completed = [
+    true,
+    Boolean(aliceRequest && aliceRequest.status !== 'PENDING'),
+    Boolean(aliceRequest && aliceRequest.status === 'CLAIMABLE' || aliceRequest?.claimed),
+    Boolean(aliceRequest?.claimed),
+    Boolean(aliceClaim && (aliceClaim.status === 'SOLD' || aliceClaim.owner.includes('Bob'))),
+    Boolean(failureRequest?.status === 'EXCEPTION'),
+  ];
+  const current = demoSteps[activeStep];
+
+  const runReset = () => reset.mutate(undefined, {
+    onSuccess: () => {
+      setActiveStep(0);
+      setFailureRequestId(null);
+      setResetOpen(false);
+      refresh();
+    },
+  });
+  const processAlice = () => {
+    if (!aliceRequest) return;
+    process.mutate({ requestId: aliceRequest.id, data: { mode: 'valid' } }, {
+      onSuccess: () => {
+        refresh();
+        setActiveStep(3);
+      },
+    });
+  };
+  const claimAlice = () => {
+    if (!aliceRequest) return;
+    claim.mutate({ requestId: aliceRequest.id }, {
+      onSuccess: () => {
+        refresh();
+        setActiveStep(4);
+      },
+    });
+  };
+  const buyAliceClaim = () => {
+    if (!aliceClaim) return;
+    buy.mutate({ claimId: aliceClaim.id, data: { buyer: '0xBob...71C' } }, {
+      onSuccess: () => {
+        refresh();
+        setActiveStep(5);
+      },
+    });
+  };
+  const startFailure = () => {
+    if (failureRequestId) {
+      process.mutate({ requestId: failureRequestId, data: { mode: 'valid' } }, { onSuccess: refresh });
+      return;
+    }
+    create.mutate({ data: { kind: 'deposit', amount: 1000, owner: '0xAlice...9F2A' } }, {
+      onSuccess: (request) => {
+        setFailureRequestId(request.id);
+        setFailure.mutate({ data: { enabled: true } }, { onSuccess: refresh });
+      },
+    });
+  };
+  const restoreSafeMode = () => setFailure.mutate({ data: { enabled: false } }, { onSuccess: refresh });
+
+  return <>
+    <PageHeader
+      eyebrow="Conference demo · 5 minutes"
+      title="Walk the room through it."
+      description="A guided Alice/Bob runbook for proving asynchronous settlement, T+0 claim liquidity, and fail-closed middleware behavior."
+      action={<Button variant="outline" onClick={() => setResetOpen(true)} data-testid="button-open-demo-reset"><RotateCcw size={14} /> Reset demo</Button>}
+    />
+    <section className="demo-intro">
+      <div className="demo-intro-mark"><Play size={17} /></div>
+      <div><b>Audience takeaway</b><span>ERC-7540 handles the asynchronous vault. Middleware handles asynchronous real-world state. The claim market handles the liquidity gap.</span></div>
+      <StatusPill value={summary.data?.failureMode ? 'Settlement hold active' : 'Ready to present'} />
+    </section>
+    <div className="demo-layout">
+      <aside className="demo-rail panel">
+        <div className="demo-rail-head"><div><span className="eyebrow">Presenter runbook</span><b>{completed.filter(Boolean).length} / {demoSteps.length} checkpoints</b></div><BookOpen size={17} /></div>
+        <div className="demo-progress"><span style={{ width: `${(completed.filter(Boolean).length / demoSteps.length) * 100}%` }} /></div>
+        <div className="demo-step-list">
+          {demoSteps.map((step, index) => <button key={step.number} className={`demo-step-item ${activeStep === index ? 'active' : ''} ${completed[index] ? 'complete' : ''}`} onClick={() => setActiveStep(index)} data-testid={`button-demo-step-${step.number}`}>
+            <span className="demo-step-number">{completed[index] ? <Check size={12} /> : step.number}</span>
+            <span><small>{step.eyebrow}</small><b>{step.title}</b></span>
+            {activeStep === index && <ChevronRight size={14} />}
+          </button>)}
+        </div>
+        <div className="demo-rail-foot"><span className="live-dot" /> State is connected to the live demo ledger</div>
+      </aside>
+      <main className="demo-main">
+        <section className="panel demo-stage-card">
+          <div className="demo-stage-head"><div><span className="eyebrow">Checkpoint {current.number} / {demoSteps.length}</span><h2>{current.title}</h2><p>{current.summary}</p></div><div className={`demo-stage-icon ${activeStep === 5 ? 'danger' : ''}`}>{activeStep === 0 ? <Play size={20} /> : activeStep === 4 ? <UserRound size={20} /> : activeStep === 5 ? <AlertTriangle size={20} /> : <CheckCircle2 size={20} />}</div></div>
+          <div className="demo-stage-body">
+            {activeStep === 0 && <div className="story-grid"><div className="story-box traditional"><span>Traditional vault</span><b>Deposit</b><ArrowRight size={15} /><b>Immediate shares</b></div><div className="story-box asynchronous"><span>Tokenized RWA</span><b>Deposit</b><ArrowRight size={15} /><b>T+2 / T+3 settlement</b></div></div>}
+            {activeStep === 1 && <div className="demo-state-callout"><div className="state-callout-icon"><Clock3 size={19} /></div><div><span>Alice · 0xAlice...9F2A</span><b>{aliceRequest?.id || 'REQ-0001'} · {money(aliceRequest?.amount || 1000)} · {aliceRequest?.status || 'PENDING'}</b><small>Claimable shares: {money(aliceRequest?.claimableAmount || 0)}</small></div><StatusPill value={aliceRequest?.status || 'PENDING'} /></div>}
+            {activeStep === 2 && <div className="demo-proof-chain"><div className="proof-line"><span className="proof-node done">1</span><b>External data received</b><small>Mock provider · labeled reference input</small></div><ArrowRight size={15} /><div className="proof-line"><span className="proof-node done">2</span><b>Validation + risk</b><small>Freshness, custody, NAV sanity</small></div><ArrowRight size={15} /><div className="proof-line"><span className="proof-node done">3</span><b>Attestation accepted</b><small>Request becomes claimable</small></div></div>}
+            {activeStep === 3 && <div className="demo-state-callout settled"><div className="state-callout-icon"><BadgeCheck size={19} /></div><div><span>Alice · settlement proof accepted</span><b>{aliceRequest?.id || 'REQ-0001'} · Claimable shares ready</b><small>Claimable amount: {money(aliceRequest?.claimableAmount || 0)}</small></div><StatusPill value={aliceRequest?.status || 'CLAIMABLE'} /></div>}
+            {activeStep === 4 && <div className="demo-transfer"><div className="transfer-party"><span className="party-avatar alice">A</span><div><small>Seller</small><b>Alice</b><span>T+0 liquidity</span></div></div><ArrowRight size={18} /><div className="transfer-asset"><span>CLAIM</span><b>$1,000 → $980</b><small>2% fixed-price discount · T+2 settlement</small></div><ArrowRight size={18} /><div className="transfer-party"><span className="party-avatar bob">B</span><div><small>Buyer</small><b>Bob</b><span>Future claim owner</span></div></div></div>}
+            {activeStep === 5 && <div className={`demo-failure-state ${failureRequest?.status === 'EXCEPTION' ? 'blocked' : ''}`}><div className="failure-orbit"><AlertTriangle size={20} /></div><div><span>{failureRequest?.id || 'New request'} · External data check</span><b>{failureRequest?.status === 'EXCEPTION' ? 'Settlement blocked' : summary.data?.failureMode ? 'Validation hold active' : 'Ready to simulate failure'}</b><small>{failureRequest?.status === 'EXCEPTION' ? 'Attestation rejected. Claimable value remains $0.00.' : 'Create a fresh Alice request, then run it against stale or unverified reference data.'}</small></div><StatusPill value={failureRequest?.status === 'EXCEPTION' ? 'EXCEPTION' : summary.data?.failureMode ? 'HOLD' : 'READY'} /></div>}
+          </div>
+          <div className="demo-stage-actions">
+            <div className="demo-action-explain">{activeStep === 0 ? <><b>Start with the problem.</b><span>No state change yet. Set up the temporal mismatch.</span></> : activeStep === 1 ? <><b>Show the pending invariant.</b><span>Before settlement, the request cannot create final shares.</span></> : activeStep === 2 ? <><b>Let proof move the state.</b><span>Only a valid middleware path can make the request claimable.</span></> : activeStep === 3 ? <><b>Finalize Alice's position.</b><span>Claiming is available only after the attestation.</span></> : activeStep === 4 ? <><b>Close the liquidity gap.</b><span>Buy the seeded Alice claim as Bob for T+0 liquidity.</span></> : <><b>Make the safety rule memorable.</b><span>When data is uncertain, the protocol delays settlement.</span></>}</div>
+            <div className="demo-action-buttons">
+              {activeStep === 0 && <Button onClick={() => setActiveStep(1)} data-testid="button-demo-start">Show Alice's request <ArrowRight size={14} /></Button>}
+              {activeStep === 1 && <Button onClick={processAlice} disabled={busy || !aliceRequest || aliceRequest.status !== 'PENDING'} data-testid="button-demo-process-alice">{process.isPending ? 'Processing…' : 'Run valid settlement'}</Button>}
+              {activeStep === 2 && <Button onClick={() => setActiveStep(3)} data-testid="button-demo-show-claim">Show claimable state <ArrowRight size={14} /></Button>}
+              {activeStep === 3 && <Button onClick={claimAlice} disabled={busy || !aliceRequest || aliceRequest.claimableAmount <= 0 || aliceRequest.claimed} data-testid="button-demo-claim-alice">{claim.isPending ? 'Claiming…' : aliceRequest?.claimed ? 'Shares claimed' : 'Claim Alice’s shares'}</Button>}
+              {activeStep === 4 && <Button onClick={buyAliceClaim} disabled={busy || !aliceClaim || aliceClaim.status !== 'LISTED'} data-testid="button-demo-buy-bob">{buy.isPending ? 'Buying…' : aliceClaim?.status === 'SOLD' ? 'Claim owned by Bob' : 'Buy as Bob · $980'}</Button>}
+              {activeStep === 5 && <>{failureRequest?.status === 'EXCEPTION' ? <Button variant="outline" onClick={restoreSafeMode} disabled={setFailure.isPending} data-testid="button-demo-restore-safe">{setFailure.isPending ? 'Restoring…' : 'Restore safe mode'}</Button> : <Button variant="destructive" onClick={startFailure} disabled={busy} data-testid="button-demo-trigger-failure">{busy ? 'Running failure path…' : failureRequestId ? 'Run blocked validation' : 'Create failure case'}</Button>}</>}
+              {activeStep < demoSteps.length - 1 && <Button variant="ghost" onClick={() => setActiveStep((step) => Math.min(demoSteps.length - 1, step + 1))} disabled={busy}>Next checkpoint <ArrowRight size={14} /></Button>}
+            </div>
+          </div>
+        </section>
+        <section className="panel presenter-notes">
+          <div className="section-title"><div className="title-left"><Copy size={16} /><h2>Presenter notes</h2><span>Say this out loud</span></div><span className="notes-cue"><span className="live-dot" /> Live cue</span></div>
+          <div className="notes-grid"><div className="quote-note"><span className="note-label">Suggested line</span><p>“{current.note}”</p></div><div className="notes-detail"><div><span className="note-label">Audience should see</span><b>{current.audience}</b></div><div><span className="note-label">Protocol truth</span><b>{current.truth}</b></div></div></div>
+        </section>
+      </main>
+    </div>
+    {resetOpen && <div className="reset-scrim" role="presentation" onClick={() => setResetOpen(false)}><div className="reset-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-demo-title" onClick={(event) => event.stopPropagation()}><div className="reset-dialog-icon"><RotateCcw size={19} /></div><span className="eyebrow">Conference controls</span><h2 id="reset-demo-title">Reset the demo run?</h2><p>This returns Alice’s pending request, the claim market listing, and all middleware controls to the opening state. It is safe to use between presenters.</p><div className="reset-dialog-actions"><Button variant="ghost" onClick={() => setResetOpen(false)}>Keep current state</Button><Button onClick={runReset} disabled={reset.isPending}>{reset.isPending ? 'Resetting…' : 'Reset and start over'}</Button></div></div></div>}
+  </>;
 }
 
 function RequestTimeline({ row, onProcess, onClaim, processing, claiming }: { row: ProtocolRequest; onProcess: () => void; onClaim: () => void; processing: boolean; claiming: boolean }) {
@@ -190,7 +405,7 @@ function Claims() {
   const { data, isLoading, isError } = useListProtocolClaims({ query: { queryKey: getListProtocolClaimsQueryKey() } });
   const list = useListProtocolClaim(); const buy = useBuyProtocolClaim(); const qc = useQueryClient();
   const [buyer, setBuyer] = useState('treasury@northstar.capital');
-  const claims = data || [];
+  const claims = Array.isArray(data) ? data : [];
   const onList = (claim: ProtocolClaim) => list.mutate({ claimId: claim.id, data: { price: Math.max(1, claim.price || claim.faceValue * 0.98) } }, { onSuccess: () => qc.invalidateQueries({ queryKey: getListProtocolClaimsQueryKey() }) });
   const onBuy = (claim: ProtocolClaim) => buy.mutate({ claimId: claim.id, data: { buyer } }, { onSuccess: () => qc.invalidateQueries({ queryKey: getListProtocolClaimsQueryKey() }) });
   return <><PageHeader eyebrow="Liquidity bridge" title="Fixed-price claim market." description="Bridge T+0 liquidity without repricing the underlying asset. Claims are listed at a known price against a settled request." action={<label className="buyer-input">Buyer account<Input value={buyer} onChange={e => setBuyer(e.target.value)} data-testid="input-buyer" /></label>} /><div className="liquidity-note"><Zap size={17} /><div><b>Why fixed-price claims?</b><span>A claim can move liquidity today while the underlying RWA follows its own settlement timetable. Price certainty is the bridge.</span></div><StatusPill value="T+0 liquidity" /></div><section className="panel claims-panel"><SectionTitle icon={ArrowUpRight} title="Market inventory" meta={`${claims.length} claims`} />{isLoading ? <div className="claims-grid">{Array.from({ length: 3 }).map((_, i) => <Skeleton className="claim-card" key={i} />)}</div> : isError ? <ErrorState /> : claims.length === 0 ? <div className="empty-state"><WalletCards size={24} /><strong>No claims available</strong><span>Process a claimable deposit, then list it here at a fixed price.</span><Link href="/requests" className="inline-link">Go to request processing <ArrowUpRight size={13} /></Link></div> : <div className="claims-grid">{claims.map(claim => <article className="claim-card" key={claim.id} data-testid={`card-claim-${claim.id}`}><div className="claim-top"><span className="claim-token">CLAIM</span><StatusPill value={claim.status} /></div><div className="claim-title"><h3>{money(claim.faceValue)}</h3><span>face value</span></div><div className="claim-price"><div><span>Fixed price</span><b>{money(claim.price)}</b></div><div className="discount"><span>Discount</span><b>{pct(claim.discount)}</b></div></div><div className="claim-detail"><span>Request <b>{claim.requestId}</b></span><span>Asset <b>{claim.assetId}</b></span><span>Settlement <StatusPill value={claim.settlement} dot={false} /></span></div><div className="claim-actions">{claim.status.toLowerCase().includes('listed') ? <Button className="flex-1" disabled={buy.isPending || !buyer} onClick={() => onBuy(claim)} data-testid={`button-buy-claim-${claim.id}`}>{buy.isPending ? 'Buying…' : 'Buy claim'} <ArrowUpRight size={14} /></Button> : <Button variant="outline" className="flex-1" disabled={list.isPending} onClick={() => onList(claim)} data-testid={`button-list-claim-${claim.id}`}>{list.isPending ? 'Listing…' : 'List at fixed price'}</Button>}</div></article>)}</div>}</section></>;
@@ -210,7 +425,7 @@ function ControlCard({ icon: Icon, label, status, copy }: { icon: typeof Databas
 }
 
 function RoutePage() {
-  return <Switch><Route path="/" component={Home} /><Route path="/vault" component={Vault} /><Route path="/assets" component={Assets} /><Route path="/requests" component={Requests} /><Route path="/claims" component={Claims} /><Route path="/monitor" component={Monitor} /><Route component={NotFound} /></Switch>;
+  return <Switch><Route path="/" component={Home} /><Route path="/demo" component={Demo} /><Route path="/vault" component={Vault} /><Route path="/assets" component={Assets} /><Route path="/requests" component={Requests} /><Route path="/claims" component={Claims} /><Route path="/monitor" component={Monitor} /><Route component={NotFound} /></Switch>;
 }
 
 function NotFound() {
