@@ -107,12 +107,13 @@ function SectionTitle({ icon: Icon, title, meta, action }: { icon: typeof Activi
 function SummaryStrip() {
   const { data, isLoading, isError } = useGetProtocolSummary({ query: { queryKey: getGetProtocolSummaryQueryKey(), refetchInterval: 12000 } });
   if (isError) return <ErrorState />;
-  if (isLoading || !data) return <div className="metric-grid">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="metric-card" />)}</div>;
-  return <div className="metric-grid">
+  if (isLoading || !data) return <div className="metric-grid">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="metric-card" />)}</div>;
+  return <div className="metric-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
     <MetricCard label="Total value locked" value={money(data.tvl)} note="Collateral held in vault" accent="accent-teal" />
-    <MetricCard label="Net asset value" value={money(data.nav)} note={`Yield rate ${pct(data.yieldRate)}`} />
-     <MetricCard label="Pending deposits" value={count(data.pendingDeposits)} note={`${count(data.claimableDeposits)} claimable`} accent="accent-amber" />
-     <MetricCard label="Pending redemptions" value={count(data.pendingRedemptions)} note={`Risk posture: ${data.risk}`} accent="accent-slate" />
+    <MetricCard label="Total assets" value={money(data.totalAssets)} note="Underlying RWA valuation" />
+    <MetricCard label="Current NAV" value={money(data.nav)} note={`Yield rate ${pct(data.yieldRate)}`} />
+    <MetricCard label="Pending deposits" value={count(data.pendingDeposits)} note={`${count(data.claimableDeposits)} claimable`} accent="accent-amber" />
+    <MetricCard label="Pending redemptions" value={count(data.pendingRedemptions)} note={`RWA risk: ${data.risk}`} accent="accent-slate" />
   </div>;
 }
 
