@@ -1,6 +1,20 @@
-# 5-Minute Conference Presentation Runbook
+# 5-Minute Conference Presentation Runbook & MVP Definition
 
-This runbook guides presenters step-by-step through a 5-minute live demonstration of the Asynchronous RWA Vault, Real-World State Middleware, and T+0 Claim Market.
+> **MVP Verification Requirement**: The Minimum Viable Product (MVP) is complete **ONLY** when both the primary vault attestation flow and secondary claim liquidity bridge operate end-to-end.
+
+---
+
+## 🏁 Dual Core MVP Workflows
+
+### 1. Primary Path: Asynchronous Deposit & Attestation Settlement
+```
+User ──> Deposit Request ──> ERC-7540 Pending ──> Middleware ──> Mock/Firecrawl RWA Data ──> Validation ──> Risk Engine ──> Signed EIP-712 Attestation ──> Oracle Adapter ──> Vault Claimable ──> User Claims Shares
+```
+
+### 2. Secondary Path: Fixed-Price Claim Secondary Market
+```
+Pending Claim ──> Claim Market Listing ──> Buyer Purchases Claim ──> Seller Gets T+0 Liquidity ──> Claim Ownership Transfers ──> RWA Settlement ──> Buyer Claims Final Value
+```
 
 ---
 
