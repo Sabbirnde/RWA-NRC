@@ -122,6 +122,7 @@ pnpm run dev
 
 ## 📄 Complete Documentation Map
 
+- [🛡 Protocol Security Audit & Threat Model Report](SECURITY_AUDIT.md)
 - [📈 Fixed-Price P2P Claim Marketplace Specification](docs/CLAIM_MARKET_SPEC.md)
 - [💧 Protocol Liquidity & Economic Safety Model](docs/LIQUIDITY_MODEL.md)
 - [📜 Claim Registry & Economic Claim Specification](docs/CLAIM_REGISTRY_SPEC.md)
